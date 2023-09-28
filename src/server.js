@@ -15,7 +15,9 @@ app.get("/*", (_, res) => res.redirect("/"));
 const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 
+// 웹 소켓 서버에서 연결 이벤트를 처리하는 부분
 wsServer.on("connection", (socket) => {
+  //방 참가
   socket.on("join_room", (roomName) => {
     socket.join(roomName);
     socket.to(roomName).emit("welcome");
