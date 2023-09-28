@@ -10,7 +10,7 @@ app.set("view engine", "pug");
 app.set("views", process.cwd() + "/src/views");
 app.use("/public", express.static(__dirname + "/src/public"));
 app.get("/", (_, res) => res.render("home"));
-// app.get("/*", (_, res) => res.redirect("/"));
+app.get("/*", (_, res) => res.redirect("/"));
 
 const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
