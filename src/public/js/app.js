@@ -190,6 +190,7 @@ function makeConnection() {
       },
     ],
   });
+
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream
