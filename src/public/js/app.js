@@ -78,6 +78,7 @@ function handleMuteClick() {
 
 // 카메라 전환 버튼 클릭 시 처리하는 함수
 function handleCameraClick() {
+  // 사용 가능한 비디오
   myStream
       .getVideoTracks()
       .forEach((track) => (track.enabled = !track.enabled));
@@ -179,7 +180,7 @@ function makeConnection() {
     //피어 간 연결 할 수 있도록 도와 주는 것
     iceServers: [
       {
-        //네트워크 환경에서 사용 가능한 공인 IP 주소, 포트
+        //stun 네트워크 환경에서 사용 가능한 공인 IP 주소, 포트 가져옴
         urls: [
           "stun:stun.l.google.com:19302",
           "stun:stun1.l.google.com:19302",
