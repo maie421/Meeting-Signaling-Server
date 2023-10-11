@@ -68,25 +68,24 @@ function handleMuteClick() {
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
   if (!muted) {
-    muteBtn.innerText = "마이크 켜기";
+    muteBtn.innerText = "Unmute";
     muted = true;
   } else {
-    muteBtn.innerText = "마이크 끄기";
+    muteBtn.innerText = "Mute";
     muted = false;
   }
 }
 
 // 카메라 전환 버튼 클릭 시 처리하는 함수
 function handleCameraClick() {
-  // 사용 가능한 비디오
   myStream
       .getVideoTracks()
       .forEach((track) => (track.enabled = !track.enabled));
   if (cameraOff) {
-    cameraBtn.innerText = "카메라 끄기";
+    cameraBtn.innerText = "Turn Camera Off";
     cameraOff = false;
   } else {
-    cameraBtn.innerText = "카메라 켜기";
+    cameraBtn.innerText = "Turn Camera On";
     cameraOff = true;
   }
 }
@@ -180,7 +179,7 @@ function makeConnection() {
     //피어 간 연결 할 수 있도록 도와 주는 것
     iceServers: [
       {
-        //stun 네트워크 환경에서 사용 가능한 공인 IP 주소, 포트 가져옴
+        //네트워크 환경에서 사용 가능한 공인 IP 주소, 포트
         urls: [
           "stun:stun.l.google.com:19302",
           "stun:stun1.l.google.com:19302",
@@ -195,8 +194,8 @@ function makeConnection() {
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream
-    .getTracks()
-    .forEach((track) => myPeerConnection.addTrack(track, myStream));
+      .getTracks()
+      .forEach((track) => myPeerConnection.addTrack(track, myStream));
 }
 
 function handleIce(data) {

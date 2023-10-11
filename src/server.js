@@ -7,8 +7,8 @@ const app = express();
 const __dirname = path.resolve();
 
 app.set("view engine", "pug");
-app.set("views", process.cwd() + "/src/views");
-app.use("/public", express.static(__dirname + "/src/public"));
+app.set("views", process.cwd() + "/views");
+app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (_, res) => res.render("home"));
 app.get("/*", (_, res) => res.redirect("/"));
 
