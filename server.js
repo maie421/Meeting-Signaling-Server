@@ -17,8 +17,10 @@ const wsServer = new Server(httpServer);
 
 // 웹 소켓 서버에서 연결 이벤트를 처리하는 부분
 wsServer.on("connection", (socket) => {
+    console.log('Client connected');
     //방 참가
     socket.on("join_room", (roomName) => {
+        console.log("roomName" + roomName);
         socket.join(roomName);
         socket.to(roomName).emit("welcome");
     });
@@ -30,6 +32,14 @@ wsServer.on("connection", (socket) => {
     });
     socket.on("ice", (ice, roomName) => {
         socket.to(roomName).emit("ice", ice);
+    });
+
+    socket.on('close', (code, reason) => {
+        console.log(`Client disconnected with code: ${code}, reason: ${reason}`);
+    });
+
+    socket.on('error', (error) => {
+        console.error(`Error occurred: ${error.message}`);
     });
 });
 
