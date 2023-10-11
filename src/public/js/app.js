@@ -1,4 +1,4 @@
-const socket = new WebSocket('wss://' + location.host);
+const socket = io();
 
 const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
@@ -15,16 +15,16 @@ let roomName;
 let myPeerConnection;
 let myDataChannel;
 
-// Function to retrieve camera device information
+// 카메라 디바이스 정보를 가져오는 함수
 async function getCameras() {
   try {
-    // Media device list
+    // 미디어 디바이스 목록
     const devices = await navigator.mediaDevices.enumerateDevices();
-    // Filter only camera devices
+    // 카메라 디바이스만 필터링
     const cameras = devices.filter((device) => device.kind === "videoinput");
-    // Camera currently in use
+    // 현재 사용 중인 카메라
     const currentCamera = myStream.getVideoTracks()[0];
-    // configure camera selection list
+    // 카메라 선택 목록을 구성
     cameras.forEach((camera) => {
       const option = document.createElement("option");
       option.value = camera.deviceId;
@@ -39,9 +39,9 @@ async function getCameras() {
   }
 }
 
-// Function to get media stream
+// 미디어 스트림을 가져오는 함수
 async function getMedia(deviceId) {
-  const initialConstraints = {
+  const initialConstrains = {
     audio: true,
     video: { facingMode: "user" },
   };
@@ -51,7 +51,7 @@ async function getMedia(deviceId) {
   };
   try {
     myStream = await navigator.mediaDevices.getUserMedia(
-        deviceId ? cameraConstraints : initialConstraints
+        deviceId ? cameraConstraints : initialConstrains
     );
     myFace.srcObject = myStream;
     if (!deviceId) {
@@ -62,9 +62,11 @@ async function getMedia(deviceId) {
   }
 }
 
-// Function to process when the microphone mute button is clicked
+// 마이크 음소거 버튼 클릭 시 처리하는 함수
 function handleMuteClick() {
-  myStream.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+  myStream
+      .getAudioTracks()
+      .forEach((track) => (track.enabled = !track.enabled));
   if (!muted) {
     muteBtn.innerText = "Unmute";
     muted = true;
@@ -74,9 +76,11 @@ function handleMuteClick() {
   }
 }
 
-// Function processed when clicking the camera switch button
+// 카메라 전환 버튼 클릭 시 처리하는 함수
 function handleCameraClick() {
-  myStream.getVideoTracks().forEach((track) => (track.enabled = !track.enabled));
+  myStream
+      .getVideoTracks()
+      .forEach((track) => (track.enabled = !track.enabled));
   if (cameraOff) {
     cameraBtn.innerText = "Turn Camera Off";
     cameraOff = false;
@@ -86,28 +90,30 @@ function handleCameraClick() {
   }
 }
 
-// Function to process when camera selection changes
+// 카메라 선택 변경 시 처리하는 함수
 async function handleCameraChange() {
   await getMedia(camerasSelect.value);
   if (myPeerConnection) {
     const videoTrack = myStream.getVideoTracks()[0];
-    const videoSender = myPeerConnection.getSenders().find((sender) => sender.track.kind === "video");
+    const videoSender = myPeerConnection
+        .getSenders()
+        .find((sender) => sender.track.kind === "video");
     videoSender.replaceTrack(videoTrack);
   }
 }
 
-// Register microphone mute button event listener
+// 마이크 음소거 버튼 이벤트 리스너 등록
 muteBtn.addEventListener("click", handleMuteClick);
-// Register camera switch button event listener
+// 카메라 전환 버튼 이벤트 리스너 등록
 cameraBtn.addEventListener("click", handleCameraClick);
-// Register camera selection change event listener
+// 카메라 선택 변경 이벤트 리스너 등록
 camerasSelect.addEventListener("input", handleCameraChange);
 
-// Handles welcome message and room joining
+// 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 
-// call start function
+// 통화 시작 함수
 async function initCall() {
   welcome.hidden = true;
   call.hidden = false;
@@ -115,64 +121,65 @@ async function initCall() {
   makeConnection();
 }
 
-// Welcome message form submission processing function
+// 환영 메시지 폼 제출 처리 함수
 async function handleWelcomeSubmit(event) {
   event.preventDefault();
   const input = welcomeForm.querySelector("input");
   await initCall();
-  // join room
-  socket.send(JSON.stringify({ type: "join_room", roomName: input.value }));
+  // 방 참가
+  socket.emit("join_room", input.value);
   roomName = input.value;
   input.value = "";
 }
 
-// Register welcome message form submission event listener
+// 환영 메시지 폼 제출 이벤트 리스너 등록
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
-// Websocket event processing part
-socket.onmessage = function (event) {
-  const message = JSON.parse(event.data);
-  if (message.type === "welcome") {
-    // Create a new channel to connect to a remote user
-    myDataChannel = myPeerConnection.createDataChannel("chat");
-    myDataChannel.addEventListener("message", (event) => console.log(event.data));
-    // Create offer creator connection setting information
-    myPeerConnection.createOffer()
-        .then(function (offer) {
-          // Set offer creator connection settings
-          myPeerConnection.setLocalDescription(offer);
-          socket.send(JSON.stringify({ type: "offer", offer: offer, roomName: roomName }));
-        });
-  } else if (message.type === "offer") {
-    myPeerConnection.addEventListener("datachannel", (event) => {
-      // Set the data channel when a data channel event occurs
-      myDataChannel = event.channel;
-      myDataChannel.addEventListener("message", (event) => console.log(event.data));
-    });
-    // Set the offer connection settings of the offer creator
-    myPeerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
-    // Create sensor connection settings information
-    myPeerConnection.createAnswer()
-        .then(function (answer) {
-          // Enter connection setup
-          myPeerConnection.setLocalDescription(answer);
-          socket.send(JSON.stringify({ type: "answer", answer: answer, roomName: roomName }));
-        });
-  } else if (message.type === "answer") {
-    // Set the answer connection settings of the offer creator.
-    myPeerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
-  } else if (message.type === "ice") {
-    console.log("Candy date received");
-    myPeerConnection.addIceCandidate(new RTCIceCandidate(message.ice));
-  }
-};
+// 웹 소켓 이벤트 처리 부분
+socket.on("welcome", async () => {
+  //원격 유저와 연결하는 신규 채널을 생성
+  myDataChannel = myPeerConnection.createDataChannel("chat");
+  myDataChannel.addEventListener("message", (event) => console.log(event.data));
+  //오퍼 생성자 연결설정 정보 생성
+  const offer = await myPeerConnection.createOffer();
+  //오퍼 생성자 연결설정 설정
+  myPeerConnection.setLocalDescription(offer);
+  socket.emit("offer", offer, roomName);
+});
+
+socket.on("offer", async (offer) => {
+  myPeerConnection.addEventListener("datachannel", (event) => {
+    // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
+    myDataChannel = event.channel;
+    myDataChannel.addEventListener("message", (event) =>
+        console.log(event.data)
+    );
+  });
+  //오퍼생성자의 오퍼 연결 설정을 설정
+  myPeerConnection.setRemoteDescription(offer);
+  //엔서 연결설정 설정 정보 생성
+  const answer = await myPeerConnection.createAnswer();
+  //엔서 연결 설정
+  myPeerConnection.setLocalDescription(answer);
+  socket.emit("answer", answer, roomName);
+});
+
+socket.on("answer", (answer) => {
+  // 오퍼생성자의 앤서 연결 설정을 설정합니다.
+  myPeerConnection.setRemoteDescription(answer);
+});
+
+socket.on("ice", (ice) => {
+  console.log("캔디데이트 수신");
+  myPeerConnection.addIceCandidate(ice);
+});
 
 function makeConnection() {
   myPeerConnection = new RTCPeerConnection({
-    // Helps connect between peers
+    //피어 간 연결 할 수 있도록 도와 주는 것
     iceServers: [
       {
-        // Public IP address and port available in the network environment
+        //네트워크 환경에서 사용 가능한 공인 IP 주소, 포트
         urls: [
           "stun:stun.l.google.com:19302",
           "stun:stun1.l.google.com:19302",
@@ -186,15 +193,17 @@ function makeConnection() {
 
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
-  myStream.getTracks().forEach((track) => myPeerConnection.addTrack(track, myStream));
+  myStream
+      .getTracks()
+      .forEach((track) => myPeerConnection.addTrack(track, myStream));
 }
 
-function handleIce(event) {
+function handleIce(data) {
   console.log("sent candidate");
-  socket.send(JSON.stringify({ type: "ice", ice: event.candidate, roomName: roomName }));
+  socket.emit("ice", data.candidate, roomName);
 }
 
-function handleAddStream(event) {
+function handleAddStream(data) {
   const peerFace = document.getElementById("peerFace");
-  peerFace.srcObject = event.stream;
+  peerFace.srcObject = data.stream;
 }
