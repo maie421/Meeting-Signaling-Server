@@ -17,6 +17,7 @@ app.get("/*", (_, res) => res.redirect("/"));
 const server = http.createServer(app).listen(3000, () => {
     console.log('https://localhost:3000/');
 });
+
 const wsServer = new WebSocketServer({server});
 
 // 웹 소켓 서버에서 연결 이벤트를 처리하는 부분
