@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:3000");
+const socket = new WebSocket('wss://' + location.host);
 
 const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
