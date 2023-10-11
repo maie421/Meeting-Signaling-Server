@@ -13,4 +13,4 @@ RUN npm install
 # 앱 소스 추가
 COPY . .
 EXPOSE 3000
-CMD [ "node", "index.js" ]
+CMD [ "node", "src/server.js" ]
