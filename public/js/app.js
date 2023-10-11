@@ -5,7 +5,7 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
 const call = document.getElementById("call");
-
+console.log(call);
 call.hidden = true;
 
 let myStream;
