@@ -167,6 +167,7 @@ socket.on("offer", async (offer) => {
 });
 
 socket.on("answer", (answer) => {
+  console.log("answer 수신");
   // 오퍼생성자의 앤서 연결 설정을 설정합니다.
   myPeerConnection.setRemoteDescription(answer);
 });
@@ -184,10 +185,6 @@ function makeConnection() {
         //네트워크 환경에서 사용 가능한 공인 IP 주소, 포트
         urls: [
           "stun:stun.l.google.com:19302",
-          "stun:stun1.l.google.com:19302",
-          "stun:stun2.l.google.com:19302",
-          "stun:stun3.l.google.com:19302",
-          "stun:stun4.l.google.com:19302",
         ],
       },
     ],
@@ -202,10 +199,13 @@ function makeConnection() {
 
 function handleIce(data) {
   console.log("sent candidate");
+  console.log(data.candidate);
+
   socket.emit("ice", data.candidate, roomName);
 }
 
 function handleAddStream(data) {
+  console.log("addstream");
   const peerFace = document.getElementById("peerFace");
   peerFace.srcObject = data.stream;
 }

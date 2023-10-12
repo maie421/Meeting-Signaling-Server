@@ -33,8 +33,10 @@ wsServer.on("connection", (socket) => {
         socket.to(roomName).emit("answer", answer);
     });
     socket.on("ice", (ice, roomName) => {
-        console.info("ice : " + roomName);
-        socket.to(roomName).emit("ice", ice);
+        console.info("ice : " + JSON.stringify(ice));
+        if (ice != null) {
+            socket.to(roomName).emit("ice", ice);
+        }
     });
 
     socket.on('close', (code, reason) => {
