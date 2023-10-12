@@ -137,6 +137,7 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // 웹 소켓 이벤트 처리 부분
 socket.on("welcome", async () => {
+  console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
   myDataChannel.addEventListener("message", (event) => console.log(event.data));
@@ -148,6 +149,7 @@ socket.on("welcome", async () => {
 });
 
 socket.on("offer", async (offer) => {
+  console.log("offer 수신");
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
