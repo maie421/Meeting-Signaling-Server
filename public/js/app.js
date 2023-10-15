@@ -5,7 +5,6 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const camerasSelect = document.getElementById("cameras");
 const call = document.getElementById("call");
-console.log(call);
 call.hidden = true;
 
 let myStream;
@@ -51,7 +50,7 @@ async function getMedia(deviceId) {
   };
   try {
     myStream = await navigator.mediaDevices.getUserMedia(
-        deviceId ? cameraConstraints : initialConstrains
+        { audio: true, video: true},
     );
     myFace.srcObject = myStream;
     if (!deviceId) {
@@ -149,7 +148,6 @@ socket.on("welcome", async () => {
 });
 
 socket.on("offer", async (offer) => {
-  console.log("offer 수신");
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
@@ -199,13 +197,11 @@ function makeConnection() {
 
 function handleIce(data) {
   console.log("sent candidate");
-  console.log(data.candidate);
-
   socket.emit("ice", data.candidate, roomName);
 }
 
 function handleAddStream(data) {
-  console.log("addstream");
+  console.log("addstream" + data);
   const peerFace = document.getElementById("peerFace");
   peerFace.srcObject = data.stream;
 }
