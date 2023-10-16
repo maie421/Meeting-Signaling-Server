@@ -16,24 +16,24 @@ const httpServer = http.createServer(app);
 const wsServer = new Server(httpServer);
 
 // 웹 소켓 서버에서 연결 이벤트를 처리하는 부분
+let rooms = {};
+
 wsServer.on("connection", (socket) => {
     console.log('Client connected');
     //방 참가
-    socket.on("join_room", (roomName) => {
-        console.info("roomName : " + roomName);
-        socket.join(roomName);
-        socket.to(roomName).emit("welcome");
+    socket.on("join_room", (roomName, name) => {
+        joinRoom(roomName, name, socket);
     });
     socket.on("offer", (offer, roomName) => {
-        console.info("offer : " + JSON.stringify(offer));
+        console.info("offer");
         socket.to(roomName).emit("offer", offer);
     });
     socket.on("answer", (answer, roomName) => {
-        console.info("answer : " + JSON.stringify(answer));
+        console.info("answer");
         socket.to(roomName).emit("answer", answer);
     });
     socket.on("ice", (ice, roomName) => {
-        console.info("ice : " + JSON.stringify(ice));
+        console.info("ice");
         if (ice != null) {
             socket.to(roomName).emit("ice", ice);
         }
@@ -50,3 +50,23 @@ wsServer.on("connection", (socket) => {
 
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 httpServer.listen(3000, handleListen);
+
+function joinRoom(roomName, name, socket) {
+    let room = rooms[roomName];
+
+    if (room == null) {
+        room = {
+            name: roomName,
+            host: name,
+            participants: {}, //참가자들
+        };
+        rooms[roomName] = room;
+        console.log(`create new room : ${room}`);
+    } else {
+        rooms[roomName].participants[name] = true;
+        console.log(`get existing room : ${room}`);
+    }
+
+    socket.join(roomName);
+    socket.to(roomName).emit("welcome", room);
+}
