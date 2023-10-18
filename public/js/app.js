@@ -126,7 +126,7 @@ async function handleWelcomeSubmit(event) {
   const input = welcomeForm.querySelector("input");
   await initCall();
   // 방 참가
-  socket.emit("join_room", input.value);
+  socket.emit("join_room", input.value, "web");
   roomName = input.value;
   input.value = "";
 }

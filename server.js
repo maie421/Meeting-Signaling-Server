@@ -39,6 +39,14 @@ wsServer.on("connection", (socket) => {
         }
     });
 
+    socket.on("leave_room", (roomName, name) => {
+        console.info("leave_room");
+        delete rooms[roomName].participants[name];
+        socket.to(roomName).emit("leave_room", name);
+        socket.leave(roomName);
+        // removeClientFromRooms(socket, name);
+    });
+
     socket.on('close', (code, reason) => {
         console.log(`Client disconnected with code: ${code}, reason: ${reason}`);
     });
@@ -46,8 +54,11 @@ wsServer.on("connection", (socket) => {
     socket.on('error', (error) => {
         console.error(`Error occurred: ${error.message}`);
     });
-});
 
+    // socket.on("disconnect", () => {
+    //     console.log(`Client disconnected`);
+    // })
+});
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 httpServer.listen(3000, handleListen);
 
@@ -61,12 +72,23 @@ function joinRoom(roomName, name, socket) {
             participants: {}, //참가자들
         };
         rooms[roomName] = room;
-        console.log(`create new room : ${room}`);
+        rooms[roomName].participants[name] = socket.id;
+        console.log(`create new room : ${JSON.stringify(room)}`);
     } else {
-        rooms[roomName].participants[name] = true;
-        console.log(`get existing room : ${room}`);
+        rooms[roomName].participants[name] = socket.id;
+        console.log(`get existing room : ${JSON.stringify(room)}`);
     }
 
     socket.join(roomName);
     socket.to(roomName).emit("welcome", room);
+}
+
+function removeClientFromRooms(socket, name) {
+    // 클라이언트가 연결을 끊을 때 해당 클라이언트를 모든 방(Room)에서 제거
+    for (const roomName in rooms) {
+        if (rooms[roomName].participants[name] === socket.id) {
+            delete rooms[roomName].participants[name];
+            socket.leave(roomName);
+        }
+    }
 }
