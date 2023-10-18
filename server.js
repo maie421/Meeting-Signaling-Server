@@ -41,7 +41,7 @@ wsServer.on("connection", (socket) => {
 
     socket.on("leave_room", (roomName, name) => {
         console.info("leave_room");
-        delete rooms[roomName].participants[name];
+        delete rooms[roomName]?.participants[name];
         socket.to(roomName).emit("leave_room", name);
         socket.leave(roomName);
         // removeClientFromRooms(socket, name);
@@ -80,7 +80,7 @@ function joinRoom(roomName, name, socket) {
     }
 
     socket.join(roomName);
-    socket.to(roomName).emit("welcome", room);
+    socket.to(roomName).emit("welcome", room, socket.id);
 }
 
 function removeClientFromRooms(socket, name) {
