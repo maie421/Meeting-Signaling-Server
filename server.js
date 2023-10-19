@@ -30,7 +30,7 @@ wsServer.on("connection", (socket) => {
     });
     socket.on("answer", (answer, roomName) => {
         console.info("answer");
-        socket.to(roomName).emit("answer", answer);
+        socket.to(roomName).emit("answer", answer, socket.id);
     });
     socket.on("ice", (ice, roomName) => {
         console.info("ice");
