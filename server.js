@@ -41,7 +41,7 @@ wsServer.on("connection", (socket) => {
 
     socket.on("leave_room", (roomName, name) => {
         console.info("leave_room");
-        delete rooms[roomName].participants[name];
+        delete rooms[roomName]?.participants[name];
         socket.to(roomName).emit("leave_room", name);
         socket.leave(roomName);
         // removeClientFromRooms(socket, name);
@@ -81,14 +81,4 @@ function joinRoom(roomName, name, socket) {
 
     socket.join(roomName);
     socket.to(roomName).emit("welcome", room);
-}
-
-function removeClientFromRooms(socket, name) {
-    // 클라이언트가 연결을 끊을 때 해당 클라이언트를 모든 방(Room)에서 제거
-    for (const roomName in rooms) {
-        if (rooms[roomName].participants[name] === socket.id) {
-            delete rooms[roomName].participants[name];
-            socket.leave(roomName);
-        }
-    }
 }
