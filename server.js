@@ -25,12 +25,12 @@ wsServer.on("connection", (socket) => {
         joinRoom(roomName, name, socket);
     });
     socket.on("offer", (offer, roomName) => {
-        console.info("offer");
-        socket.to(roomName).emit("offer", offer);
+        console.info("offer: " + offer);
+        socket.to(roomName).emit("offer", offer, socket.id);
     });
     socket.on("answer", (answer, roomName) => {
-        console.info("answer");
-        socket.to(roomName).emit("answer", answer, socket.id);
+        console.info("answer:" + answer);
+        socket.to(roomName).emit("answer", answer);
     });
     socket.on("ice", (ice, roomName) => {
         console.info("ice");
@@ -81,14 +81,4 @@ function joinRoom(roomName, name, socket) {
 
     socket.join(roomName);
     socket.to(roomName).emit("welcome", room, socket.id);
-}
-
-function removeClientFromRooms(socket, name) {
-    // 클라이언트가 연결을 끊을 때 해당 클라이언트를 모든 방(Room)에서 제거
-    for (const roomName in rooms) {
-        if (rooms[roomName].participants[name] === socket.id) {
-            delete rooms[roomName].participants[name];
-            socket.leave(roomName);
-        }
-    }
 }
