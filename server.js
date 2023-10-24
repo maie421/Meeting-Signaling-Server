@@ -19,21 +19,21 @@ const wsServer = new Server(httpServer);
 let rooms = {};
 
 wsServer.on("connection", (socket) => {
-    console.log('Client connected');
     //방 참가
     socket.on("join_room", (roomName, name) => {
         joinRoom(roomName, name, socket);
     });
-    socket.on("offer", (offer, roomName) => {
-        console.info("offer: " + offer);
-        socket.to(roomName).emit("offer", offer, socket.id);
+    socket.on("offer", (offer, roomName, from) => {
+        console.info("offer: " + from);
+        //join 한 나한테만 오도록 수정
+        socket.to(roomName).emit("offer", offer, from, socket.id);
     });
-    socket.on("answer", (answer, roomName) => {
-        console.info("answer:" + answer);
-        socket.to(roomName).emit("answer", answer);
+    socket.on("answer", (answer, roomName , from) => {
+        console.info("answer:" + from);
+        socket.to(roomName).emit("answer", answer, from, rooms);
     });
     socket.on("ice", (ice, roomName) => {
-        console.info("ice");
+        // console.info("ice: " + socket.id);
         if (ice != null) {
             socket.to(roomName).emit("ice", ice);
         }
@@ -80,5 +80,5 @@ function joinRoom(roomName, name, socket) {
     }
 
     socket.join(roomName);
-    socket.to(roomName).emit("welcome", room, socket.id);
+    socket.to(roomName).emit("welcome", room);
 }
