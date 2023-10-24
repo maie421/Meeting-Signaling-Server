@@ -19,21 +19,22 @@ const wsServer = new Server(httpServer);
 let rooms = {};
 
 wsServer.on("connection", (socket) => {
-    console.log('Client connected');
     //방 참가
     socket.on("join_room", (roomName, name) => {
         joinRoom(roomName, name, socket);
     });
-    socket.on("offer", (offer, roomName) => {
-        console.info("offer");
-        socket.to(roomName).emit("offer", offer);
+    socket.on("offer", (offer, roomName, from) => {
+        console.info("offer: " + from);
+        //join 한 나한테만 오도록 수정
+        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id);
     });
-    socket.on("answer", (answer, roomName) => {
-        console.info("answer");
-        socket.to(roomName).emit("answer", answer);
+    socket.on("answer", (answer, roomName , from, socketId) => {
+        console.info("answer socketId from : " + socketId);
+        wsServer.to(socketId).emit("answer", answer, from, rooms);
+        // socket.to(roomName).emit("answer", answer, from, rooms);
     });
     socket.on("ice", (ice, roomName) => {
-        console.info("ice");
+        console.info("ice: " + socket.id);
         if (ice != null) {
             socket.to(roomName).emit("ice", ice);
         }
@@ -44,7 +45,6 @@ wsServer.on("connection", (socket) => {
         delete rooms[roomName]?.participants[name];
         socket.to(roomName).emit("leave_room", name);
         socket.leave(roomName);
-        // removeClientFromRooms(socket, name);
     });
 
     socket.on('close', (code, reason) => {
@@ -55,9 +55,6 @@ wsServer.on("connection", (socket) => {
         console.error(`Error occurred: ${error.message}`);
     });
 
-    // socket.on("disconnect", () => {
-    //     console.log(`Client disconnected`);
-    // })
 });
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 httpServer.listen(3000, handleListen);
@@ -80,5 +77,5 @@ function joinRoom(roomName, name, socket) {
     }
 
     socket.join(roomName);
-    socket.to(roomName).emit("welcome", room);
+    socket.to(roomName).emit("welcome", room, name);
 }
