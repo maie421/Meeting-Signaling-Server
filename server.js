@@ -23,10 +23,11 @@ wsServer.on("connection", (socket) => {
     socket.on("join_room", (roomName, name) => {
         joinRoom(roomName, name, socket);
     });
-    socket.on("offer", (offer, roomName, from) => {
+    socket.on("offer", (offer, roomName, from, tofrom) => {
+        //tofrom 보낸사람
+        //from 받아 야 하는 사람
         console.info("offer: " + from);
-        //join 한 나한테만 오도록 수정
-        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id);
+        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id, tofrom);
     });
     socket.on("answer", (answer, roomName , from, socketId) => {
         console.info("answer socketId from : " + socketId);
@@ -34,14 +35,14 @@ wsServer.on("connection", (socket) => {
         // socket.to(roomName).emit("answer", answer, from, rooms);
     });
     socket.on("ice", (ice, roomName) => {
-        console.info("ice: " + socket.id);
+        // console.info("ice: " + socket.id);
         if (ice != null) {
             socket.to(roomName).emit("ice", ice);
         }
     });
 
     socket.on("leave_room", (roomName, name) => {
-        console.info("leave_room");
+        console.info("leave_room : " + name);
         delete rooms[roomName]?.participants[name];
         socket.to(roomName).emit("leave_room", name);
         socket.leave(roomName);
