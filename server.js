@@ -48,6 +48,16 @@ wsServer.on("connection", (socket) => {
         socket.leave(roomName);
     });
 
+    socket.on("recorder_room", (roomName) => {
+        console.info("recorder_room : 들어옴");
+        socket.to(roomName).emit("recorder_room");
+    });
+
+    socket.on("recorder_name", (roomName, from) => {
+        console.info("recorder_room : 들어옴");
+        wsServer.to(rooms[roomName].participants[from]).emit("recorder_name");
+    });
+
     socket.on('close', (code, reason) => {
         console.log(`Client disconnected with code: ${code}, reason: ${reason}`);
     });
