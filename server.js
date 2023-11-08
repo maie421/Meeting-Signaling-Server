@@ -27,7 +27,9 @@ wsServer.on("connection", (socket) => {
         //tofrom 보낸사람
         //from 받아 야 하는 사람
         console.info("offer: " + from);
-        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id, tofrom);
+        let firstParticipantKey = Object.keys(rooms[roomName].participants)[0];
+
+        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id, tofrom, firstParticipantKey);
     });
     socket.on("answer", (answer, roomName , from, socketId) => {
         console.info("answer socketId from : " + socketId);
@@ -42,9 +44,13 @@ wsServer.on("connection", (socket) => {
     });
 
     socket.on("leave_room", (roomName, name) => {
-        console.info("leave_room : " + name);
         delete rooms[roomName]?.participants[name];
-        socket.to(roomName).emit("leave_room", name);
+
+        let firstParticipantKey = Object.keys(rooms[roomName].participants)[0];
+        rooms[roomName].host = firstParticipantKey;
+
+        console.info(`leave_room : ${JSON.stringify(rooms[roomName])}`);
+        socket.to(roomName).emit("leave_room", name, firstParticipantKey);
         socket.leave(roomName);
     });
 
