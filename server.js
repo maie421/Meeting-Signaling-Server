@@ -27,13 +27,11 @@ wsServer.on("connection", (socket) => {
         //tofrom 보낸사람
         //from 받아 야 하는 사람
         console.info("offer: " + from);
-        let firstParticipantKey = Object.keys(rooms[roomName].participants)[0];
-
-        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id, tofrom, firstParticipantKey);
+        wsServer.to(rooms[roomName].participants[from]).emit("offer", offer, from, socket.id, tofrom, rooms[roomName].host);
     });
     socket.on("answer", (answer, roomName , from, socketId) => {
         console.info("answer socketId from : " + socketId);
-        wsServer.to(socketId).emit("answer", answer, from, rooms);
+        wsServer.to(socketId).emit("answer", answer, from);
         // socket.to(roomName).emit("answer", answer, from, rooms);
     });
     socket.on("ice", (ice, roomName) => {
@@ -46,11 +44,15 @@ wsServer.on("connection", (socket) => {
     socket.on("leave_room", (roomName, name) => {
         delete rooms[roomName]?.participants[name];
 
-        let firstParticipantKey = Object.keys(rooms[roomName].participants)[0];
-        rooms[roomName].host = firstParticipantKey;
+        if (rooms[roomName]?.host === name){
+            rooms[roomName].host = Object.keys(rooms[roomName].participants)[0];
+            console.info(`changeHost : ${rooms[roomName].host}`);
+            wsServer.to(rooms[roomName].participants[rooms[roomName].host]).emit("change_host");
+        }
+
 
         console.info(`leave_room : ${JSON.stringify(rooms[roomName])}`);
-        socket.to(roomName).emit("leave_room", name, firstParticipantKey);
+        socket.to(roomName).emit("leave_room", name, rooms[roomName].host);
         socket.leave(roomName);
     });
 
