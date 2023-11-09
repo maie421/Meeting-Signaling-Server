@@ -52,7 +52,7 @@ wsServer.on("connection", (socket) => {
 
 
         console.info(`leave_room : ${JSON.stringify(rooms[roomName])}`);
-        socket.to(roomName).emit("leave_room", name, rooms[roomName].host);
+        socket.to(roomName).emit("leave_room", name, rooms[roomName]?.host);
         socket.leave(roomName);
     });
 
