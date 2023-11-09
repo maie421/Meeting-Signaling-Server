@@ -46,8 +46,10 @@ wsServer.on("connection", (socket) => {
 
         if (rooms[roomName]?.host === name){
             rooms[roomName].host = Object.keys(rooms[roomName].participants)[0];
-            console.info(`changeHost : ${rooms[roomName].host}`);
-            wsServer.to(rooms[roomName].participants[rooms[roomName].host]).emit("change_host");
+            if (rooms[roomName].host) {
+                console.info(`changeHost : ${rooms[roomName].host}`);
+                wsServer.to(rooms[roomName].participants[rooms[roomName].host]).emit("change_host");
+            }
         }
 
 
@@ -58,12 +60,17 @@ wsServer.on("connection", (socket) => {
 
     socket.on("recorder_room", (roomName) => {
         console.info("recorder_room : 들어옴");
-        socket.to(roomName).emit("recorder_room");
+        socket.to(roomName).emit("recorder_room", roomName);
+    });
+
+    socket.on("stop_recorder_room", (roomName, from) => {
+        console.info("stop_recorder_room : 들어옴");
+        socket.to(roomName).emit("stop_recorder_room", roomName);
     });
 
     socket.on("recorder_name", (roomName, from) => {
         console.info("recorder_room : 들어옴");
-        wsServer.to(rooms[roomName].participants[from]).emit("recorder_name");
+        wsServer.to(rooms[roomName].participants[from]).emit("recorder_name", roomName);
     });
 
     socket.on('close', (code, reason) => {
