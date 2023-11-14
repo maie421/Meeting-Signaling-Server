@@ -14,8 +14,6 @@ let name;
 let myPeerConnection;
 let myDataChannel;
 
-// 카메라 디바이스 정보를 가져오는 함수
-
 // 미디어 스트림을 가져오는 함수
 async function getMedia(deviceId) {
   const initialConstrains = {
@@ -42,7 +40,7 @@ function handleMuteClick() {
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
   if (!muted) {
-    muteBtn.innerText = "Unmute";
+    muteBtn.innerText = "마이크 차단";
     muted = true;
   } else {
     muteBtn.innerText = "Mute";
@@ -56,10 +54,10 @@ function handleCameraClick() {
       .getVideoTracks()
       .forEach((track) => (track.enabled = !track.enabled));
   if (cameraOff) {
-    cameraBtn.innerText = "Turn Camera Off";
+    cameraBtn.innerText = "카메라 끄기";
     cameraOff = false;
   } else {
-    cameraBtn.innerText = "Turn Camera On";
+    cameraBtn.innerText = "카메라 켜기";
     cameraOff = true;
   }
 }
