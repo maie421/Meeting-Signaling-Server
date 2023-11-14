@@ -10,6 +10,7 @@ let myStream;
 let muted = false;
 let cameraOff = false;
 let roomName;
+let name;
 let myPeerConnection;
 let myDataChannel;
 
@@ -84,11 +85,12 @@ async function initCall() {
 async function handleWelcomeSubmit(event) {
   event.preventDefault();
   const input = welcomeForm.querySelector(`#room_name`);
-  const input_name = welcomeForm.querySelector(`#name`);
+  const inputName = welcomeForm.querySelector(`#name`);
   await initCall();
   // 방 참가
-  socket.emit("join_room", input.value, input_name.value);
+  socket.emit("join_room", input.value, inputName.value);
   roomName = input.value;
+  name = inputName.value;
   input.value = "";
 }
 
@@ -105,10 +107,10 @@ socket.on("welcome", async () => {
   const offer = await myPeerConnection.createOffer();
   //오퍼 생성자 연결설정 설정
   myPeerConnection.setLocalDescription(offer);
-  socket.emit("offer", offer, roomName);
+  socket.emit("offer", offer, roomName, name, 'fff');
 });
 
-socket.on("offer", async (offer) => {
+socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
@@ -122,10 +124,10 @@ socket.on("offer", async (offer) => {
   const answer = await myPeerConnection.createAnswer();
   //엔서 연결 설정
   myPeerConnection.setLocalDescription(answer);
-  socket.emit("answer", answer, roomName);
+  socket.emit("answer", answer, roomName, sendName, socketId);
 });
 
-socket.on("answer", (answer) => {
+socket.on("answer", (answer, sendName) => {
   console.log("answer 수신");
   // 오퍼생성자의 앤서 연결 설정을 설정합니다.
   myPeerConnection.setRemoteDescription(answer);
