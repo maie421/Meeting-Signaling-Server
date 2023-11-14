@@ -3,7 +3,6 @@ const socket = io();
 const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
-const camerasSelect = document.getElementById("cameras");
 const call = document.getElementById("call");
 call.hidden = true;
 
@@ -15,28 +14,6 @@ let myPeerConnection;
 let myDataChannel;
 
 // 카메라 디바이스 정보를 가져오는 함수
-async function getCameras() {
-  try {
-    // 미디어 디바이스 목록
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    // 카메라 디바이스만 필터링
-    const cameras = devices.filter((device) => device.kind === "videoinput");
-    // 현재 사용 중인 카메라
-    const currentCamera = myStream.getVideoTracks()[0];
-    // 카메라 선택 목록을 구성
-    cameras.forEach((camera) => {
-      const option = document.createElement("option");
-      option.value = camera.deviceId;
-      option.innerText = camera.label;
-      if (currentCamera.label === camera.label) {
-        option.selected = true;
-      }
-      camerasSelect.appendChild(option);
-    });
-  } catch (e) {
-    console.log(e);
-  }
-}
 
 // 미디어 스트림을 가져오는 함수
 async function getMedia(deviceId) {
@@ -53,9 +30,6 @@ async function getMedia(deviceId) {
         { audio: true, video: true},
     );
     myFace.srcObject = myStream;
-    if (!deviceId) {
-      await getCameras();
-    }
   } catch (e) {
     console.log(e);
   }
@@ -89,24 +63,10 @@ function handleCameraClick() {
   }
 }
 
-// 카메라 선택 변경 시 처리하는 함수
-async function handleCameraChange() {
-  await getMedia(camerasSelect.value);
-  if (myPeerConnection) {
-    const videoTrack = myStream.getVideoTracks()[0];
-    const videoSender = myPeerConnection
-        .getSenders()
-        .find((sender) => sender.track.kind === "video");
-    videoSender.replaceTrack(videoTrack);
-  }
-}
-
 // 마이크 음소거 버튼 이벤트 리스너 등록
 muteBtn.addEventListener("click", handleMuteClick);
 // 카메라 전환 버튼 이벤트 리스너 등록
 cameraBtn.addEventListener("click", handleCameraClick);
-// 카메라 선택 변경 이벤트 리스너 등록
-camerasSelect.addEventListener("input", handleCameraChange);
 
 // 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
@@ -123,10 +83,11 @@ async function initCall() {
 // 환영 메시지 폼 제출 처리 함수
 async function handleWelcomeSubmit(event) {
   event.preventDefault();
-  const input = welcomeForm.querySelector("input");
+  const input = welcomeForm.querySelector(`#room_name`);
+  const input_name = welcomeForm.querySelector(`#name`);
   await initCall();
   // 방 참가
-  socket.emit("join_room", input.value, "web");
+  socket.emit("join_room", input.value, input_name.value);
   roomName = input.value;
   input.value = "";
 }
