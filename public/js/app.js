@@ -97,7 +97,7 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // 웹 소켓 이벤트 처리 부분
 socket.on("welcome", async (room, _name) => {
-  makeConnection();
+  makeConnection(_name);
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
@@ -110,7 +110,7 @@ socket.on("welcome", async (room, _name) => {
 });
 
 socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
-  makeConnection();
+  makeConnection(receiverName);
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
@@ -138,7 +138,11 @@ socket.on("ice", (ice) => {
   myPeerConnection.addIceCandidate(ice);
 });
 
-function makeConnection() {
+socket.on("leave_room", (name) => {
+  removeUserByTag(name);
+});
+
+function makeConnection(_name) {
   myPeerConnection = new RTCPeerConnection({
     iceServers: [
       {
@@ -154,7 +158,9 @@ function makeConnection() {
 
   // 나머지 코드는 이전과 동일합니다.
   myPeerConnection.addEventListener("icecandidate", handleIce);
-  myPeerConnection.addEventListener("addstream", handleAddStream);
+  myPeerConnection.addEventListener("addstream", (event) => {
+    handleAddStream(event, _name);
+  });
   myStream
       .getTracks()
       .forEach((track) => myPeerConnection.addTrack(track, myStream));
@@ -165,7 +171,7 @@ function handleIce(data) {
   socket.emit("ice", data.candidate, roomName);
 }
 
-function handleAddStream(data) {
+function handleAddStream(data, _name) {
   console.log("addstream" + data);
 
   // "peerFace" 요소를 생성합니다.
@@ -177,8 +183,23 @@ function handleAddStream(data) {
 
   // "peerFace" 요소에 스트림을 설정합니다.
   peerFace.srcObject = data.stream;
+  peerFace.dataset.tag = _name;
 
   // "peerFaceContainer" 부모 요소에 "peerFace"를 추가합니다.
   const peerFaceContainer = document.getElementById("peerFaceContainer");
   peerFaceContainer.appendChild(peerFace);
+}
+
+window.onbeforeunload = function () {
+  socket.emit("leave_room", roomName, name);
+}
+
+function removeUserByTag(tag) {
+  const peerFaceContainer = document.getElementById("peerFaceContainer");
+  const peerFaces = peerFaceContainer.querySelectorAll("video");
+  peerFaces.forEach((peerFace) => {
+    if (peerFace.dataset.tag === tag) {
+      peerFaceContainer.removeChild(peerFace);
+    }
+  });
 }
