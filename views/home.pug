@@ -5,21 +5,21 @@ html(lang="en")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
         title Meeting
-        link(rel="stylesheet", href="https://unpkg.com/mvp.css")
-    body
+        link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css")
+    body(class="container")
         header
             h1 Meeting
         main
             div#welcome
                 form
-                    input(id="room_name" placeholder="회의 ID 또는 개인 링크 이름", required, type="text")
-                    input(id="name" placeholder="닉네임", required, type="text")
-                    button 회의 참가
+                    input(id="room_name" class="form-control" placeholder="회의 ID 또는 개인 링크 이름", required, type="text")
+                    input(id="name" class="form-control" placeholder="닉네임", required, type="text")
+                    button(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 회의 참가
             div#call
                 div#myStream
                     video#myFace(autoplay, playsinline, width="400", height="400")
-                    button#mute Mute
-                    button#camera Turn Camera Off
+                    button#mute(class="btn btn-primary d-grid gap-2 col-3 mx-auto") Mute
+                    button#camera(class="btn btn-primary d-grid gap-2 col-3 mx-auto") Turn Camera Off
                 div#peerFaceContainer
         script(src="/socket.io/socket.io.js")
         script(src="/public/js/app.js")
