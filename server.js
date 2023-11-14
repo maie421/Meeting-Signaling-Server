@@ -52,7 +52,6 @@ wsServer.on("connection", (socket) => {
             }
         }
 
-
         console.info(`leave_room : ${JSON.stringify(rooms[roomName])}`);
         socket.to(roomName).emit("leave_room", name, rooms[roomName]?.host);
         socket.leave(roomName);
@@ -66,6 +65,11 @@ wsServer.on("connection", (socket) => {
     socket.on("stop_recorder_room", (roomName, from) => {
         console.info("stop_recorder_room : 들어옴");
         socket.to(roomName).emit("stop_recorder_room", roomName);
+    });
+
+    socket.on("stop_screen_room", (roomName, from) => {
+        console.info("stop_screen_room : 들어옴");
+        socket.to(roomName).emit("stop_screen_room", roomName);
     });
 
     socket.on("recorder_name", (roomName, from) => {
