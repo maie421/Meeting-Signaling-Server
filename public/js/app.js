@@ -165,6 +165,18 @@ function handleIce(data) {
 
 function handleAddStream(data) {
   console.log("addstream" + data);
-  const peerFace = document.getElementById("peerFace");
+
+  // "peerFace" 요소를 생성합니다.
+  const peerFace = document.createElement("video");
+  peerFace.autoplay = true;
+  peerFace.playsinline = true;
+  peerFace.width = 400;
+  peerFace.height = 400;
+
+  // "peerFace" 요소에 스트림을 설정합니다.
   peerFace.srcObject = data.stream;
+
+  // "peerFaceContainer" 부모 요소에 "peerFace"를 추가합니다.
+  const peerFaceContainer = document.getElementById("peerFaceContainer");
+  peerFaceContainer.appendChild(peerFace);
 }
