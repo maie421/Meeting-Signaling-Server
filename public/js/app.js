@@ -78,7 +78,7 @@ async function initCall() {
   welcome.hidden = true;
   call.hidden = false;
   await getMedia();
-  makeConnection();
+  // makeConnection();
 }
 
 // 환영 메시지 폼 제출 처리 함수
@@ -98,7 +98,7 @@ async function handleWelcomeSubmit(event) {
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // 웹 소켓 이벤트 처리 부분
-socket.on("welcome", async () => {
+socket.on("welcome", async (room, _name) => {
   makeConnection();
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
@@ -108,7 +108,7 @@ socket.on("welcome", async () => {
   const offer = await myPeerConnection.createOffer();
   //오퍼 생성자 연결설정 설정
   myPeerConnection.setLocalDescription(offer);
-  socket.emit("offer", offer, roomName, name, 'fff');
+  socket.emit("offer", offer, roomName, _name, name);
 });
 
 socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
