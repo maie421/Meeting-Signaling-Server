@@ -99,6 +99,7 @@ welcomeForm.addEventListener("submit", handleWelcomeSubmit);
 
 // 웹 소켓 이벤트 처리 부분
 socket.on("welcome", async () => {
+  makeConnection();
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
@@ -111,6 +112,7 @@ socket.on("welcome", async () => {
 });
 
 socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
+  makeConnection();
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
@@ -140,17 +142,19 @@ socket.on("ice", (ice) => {
 
 function makeConnection() {
   myPeerConnection = new RTCPeerConnection({
-    //피어 간 연결 할 수 있도록 도와 주는 것
     iceServers: [
       {
-        //네트워크 환경에서 사용 가능한 공인 IP 주소, 포트
-        urls: [
-          "stun:stun.l.google.com:19302",
-        ],
+        urls: "stun:stun.l.google.com:19302", // STUN 서버 정보
+      },
+      {
+        urls: "turn:15.165.75.15:3478",
+        username: "username1",
+        credential: "key1",
       },
     ],
   });
 
+  // 나머지 코드는 이전과 동일합니다.
   myPeerConnection.addEventListener("icecandidate", handleIce);
   myPeerConnection.addEventListener("addstream", handleAddStream);
   myStream
