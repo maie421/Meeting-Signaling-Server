@@ -43,7 +43,7 @@ function handleMuteClick() {
     muteBtn.innerText = "마이크 차단";
     muted = true;
   } else {
-    muteBtn.innerText = "Mute";
+    muteBtn.innerText = "마이크 켜기";
     muted = false;
   }
 }
