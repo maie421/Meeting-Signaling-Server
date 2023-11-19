@@ -4,6 +4,13 @@ const myFace = document.getElementById("myFace");
 const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const call = document.getElementById("call");
+const filterSelect = document.getElementById("filter");
+const video = window.video = document.querySelector('video');
+const buffer = document.createElement('canvas');
+const canvas = document.getElementById('canvas');
+let glslCanvas;
+
+let fragColor = `gl_FragColor = vec4(color, 1.0);`;
 call.hidden = true;
 
 let myStream;
@@ -15,19 +22,15 @@ let myPeerConnection;
 let myDataChannel;
 
 // 미디어 스트림을 가져오는 함수
-async function getMedia(deviceId) {
-  const initialConstrains = {
+async function getMedia() {
+  const constraints = {
     audio: true,
-    video: { facingMode: "user" },
+    video: true
   };
-  const cameraConstraints = {
-    audio: true,
-    video: { deviceId: { exact: deviceId } },
-  };
+
   try {
-    myStream = await navigator.mediaDevices.getUserMedia(
-        { audio: true, video: true},
-    );
+    myStream = await navigator.mediaDevices.getUserMedia(constraints);
+    // myStream = await navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
     myFace.srcObject = myStream;
   } catch (e) {
     console.log(e);
@@ -66,7 +69,11 @@ function handleCameraClick() {
 muteBtn.addEventListener("click", handleMuteClick);
 // 카메라 전환 버튼 이벤트 리스너 등록
 cameraBtn.addEventListener("click", handleCameraClick);
+filterSelect.addEventListener("change", handleFilterSelect);
 
+function handleFilterSelect() {
+  video.className = filterSelect.value;
+}
 // 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
