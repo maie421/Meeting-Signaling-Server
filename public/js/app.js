@@ -105,19 +105,13 @@ socket.on("welcome", async (room, _name) => {
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
-  dataChannels.push(myDataChannel);
 
-  // dataChannels.forEach(function (_myDataChannel){
-  //   _myDataChannel.addEventListener("message", (event) => {
-  //     appendMessage(event.data, false);
-  //     console.log(event.data);
-  //   });
-  // });
-
-  myDataChannel.addEventListener("message", (event) => {
+  myDataChannel.onmessage = function (event) {
+    console.log(event.data);
     appendMessage(event.data, false);
-    console.log("message");
-  });
+  };
+
+  dataChannels.push(myDataChannel);
   //오퍼 생성자 연결설정 정보 생성
   const offer = await myPeerConnection.createOffer();
   //오퍼 생성자 연결설정 설정
@@ -126,7 +120,7 @@ socket.on("welcome", async (room, _name) => {
 });
 
 socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
-  makeConnection(socketId);
+  makeConnection(receiverName);
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
@@ -135,12 +129,6 @@ socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
         console.log(event.data);
     });
     dataChannels.push(event.channel);
-    // dataChannels.forEach(function (_myDataChannel) {
-    //   _myDataChannel.addEventListener("message", (event) => {
-    //     appendMessage(event.data, false);
-    //     console.log(event.data);
-    //   });
-    // });
   });
   //오퍼생성자의 오퍼 연결 설정을 설정
   myPeerConnection.setRemoteDescription(offer);
@@ -159,10 +147,13 @@ socket.on("answer", (answer, sendName) => {
 
 socket.on("ice", (ice) => {
   console.log("캔디데이트 수신");
-  myPeerConnection.addIceCandidate(ice);
+  if (ice){
+    myPeerConnection.addIceCandidate(ice);
+  }
 });
 
-socket.on("leave_room", (name) => {
+socket.on("leave_room", (name, hostName) => {
+  console.log(name);
   removeUserByTag(name);
 });
 
@@ -249,6 +240,7 @@ msgForm.addEventListener("submit", function (event) {
 
   dataChannels.forEach(function (_myDataChannel) {
     console.log(`send ${text}`);
+    // const encodedData = stringToByteBuffer(text, 'utf-8');
     _myDataChannel.send(text);
   });
 
@@ -269,7 +261,6 @@ function appendMessage(text, isCurrentUser) {
   messageContainer.appendChild(messageElement);
 }
 
-// Function to format received message
 function formatMessage(text, isCurrentUser) {
   const messageType = text.substr(0, 2);
   const message = text.substr(2);
@@ -285,4 +276,18 @@ function formatMessage(text, isCurrentUser) {
     default:
       return text;
   }
+}
+
+function stringToByteBuffer(str, charset) {
+  const encoder = new TextEncoder(charset);
+  const encoded = encoder.encode(str);
+  return new Uint8Array(encoded).buffer;
+}
+
+// Function to convert a ByteBuffer-like object to a string
+function byteBufferToString(buffer, charset) {
+  const decoder = new TextDecoder(charset);
+  const dataView = new DataView(buffer);
+  const decoded = decoder.decode(dataView);
+  return decoded;
 }
