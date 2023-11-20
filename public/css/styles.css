@@ -1,0 +1,14 @@
+.message {
+    margin-bottom: 10px;
+}
+
+.user-message {
+    text-align: right;
+    background-color: #4CAF50; /* Green background color for user's messages */
+    color: white;
+}
+
+.other-message {
+    text-align: left;
+    background-color: #f1f1f1; /* Light gray background color for other person's messages */
+}

@@ -6,11 +6,7 @@ const cameraBtn = document.getElementById("camera");
 const call = document.getElementById("call");
 const filterSelect = document.getElementById("filter");
 const video = window.video = document.querySelector('video');
-const buffer = document.createElement('canvas');
-const canvas = document.getElementById('canvas');
-let glslCanvas;
 
-let fragColor = `gl_FragColor = vec4(color, 1.0);`;
 call.hidden = true;
 
 let myStream;
@@ -20,6 +16,7 @@ let roomName;
 let name;
 let myPeerConnection;
 let myDataChannel;
+let dataChannels = [];
 
 // 미디어 스트림을 가져오는 함수
 async function getMedia() {
@@ -76,7 +73,7 @@ function handleFilterSelect() {
 }
 // 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
-const welcomeForm = welcome.querySelector("form");
+const welcomeForm = welcome.querySelector("form#welcomeForm");
 
 // 통화 시작 함수
 async function initCall() {
@@ -108,7 +105,18 @@ socket.on("welcome", async (room, _name) => {
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
-  myDataChannel.addEventListener("message", (event) => console.log(event.data));
+  dataChannels.forEach(function (_myDataChannel){
+    _myDataChannel.addEventListener("message", (event) => {
+      appendMessage(event.data, false);
+      console.log(event.data);
+    });
+  });
+
+  dataChannels.push(myDataChannel);
+  // myDataChannel.addEventListener("message", (event) => {
+  //   appendMessage(event.data, false);
+  //   console.log("message");
+  // });
   //오퍼 생성자 연결설정 정보 생성
   const offer = await myPeerConnection.createOffer();
   //오퍼 생성자 연결설정 설정
@@ -120,10 +128,18 @@ socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
   makeConnection(receiverName);
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
-    myDataChannel = event.channel;
-    myDataChannel.addEventListener("message", (event) =>
-        console.log(event.data)
-    );
+    // myDataChannel = event.channel;
+    // myDataChannel.addEventListener("message", (event) =>{
+    //     appendMessage(event.data, false);
+    //     console.log(event.data);
+    // });
+    dataChannels.forEach(function (_myDataChannel) {
+      _myDataChannel.addEventListener("message", (event) => {
+        appendMessage(event.data, false);
+        console.log(event.data);
+      });
+    });
+    dataChannels.push(event.channel);
   });
   //오퍼생성자의 오퍼 연결 설정을 설정
   myPeerConnection.setRemoteDescription(offer);
@@ -168,9 +184,11 @@ function makeConnection(_name) {
   myPeerConnection.addEventListener("addstream", (event) => {
     handleAddStream(event, _name);
   });
+
   myStream
       .getTracks()
       .forEach((track) => myPeerConnection.addTrack(track, myStream));
+
 }
 
 function handleIce(data) {
@@ -209,4 +227,61 @@ function removeUserByTag(tag) {
       peerFaceContainer.removeChild(peerFace);
     }
   });
+}
+
+const msgForm = document.querySelector("form#msgForm");
+const messageContainer = document.getElementById("message-container");
+
+msgForm.addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  // Get the user's message from the input field
+  const userMessageInput = msgForm.querySelector("input[type='text']");
+  const userMessage = userMessageInput.value;
+
+  const timestamp = new Date();
+  const hours = timestamp.getHours().toString().padStart(2, '0');
+  const minutes = timestamp.getMinutes().toString().padStart(2, '0');
+  const timestampString = `${hours}시${minutes}분`;
+
+  const text = `-s${name}::${userMessage}::${timestampString}`;
+
+  dataChannels.forEach(function (_myDataChannel) {
+    console.log(`send ${text}`);
+    _myDataChannel.send(text);
+  });
+
+  appendMessage(text, true);
+
+  // Clear the input field after sending the message
+  userMessageInput.value = "";
+});
+
+function appendMessage(text, isCurrentUser) {
+  const messageElement = document.createElement("div");
+  messageElement.classList.add("message");
+
+  // Set inner HTML with sender, timestamp, and text
+  messageElement.innerHTML = formatMessage(text,isCurrentUser)
+
+  // Append the message to the message container
+  messageContainer.appendChild(messageElement);
+}
+
+// Function to format received message
+function formatMessage(text, isCurrentUser) {
+  const messageType = text.substr(0, 2);
+  const message = text.substr(2);
+  const messageParts = message.split("::");
+  const messageContent = messageParts[1];
+  const nameContent = messageParts[0];
+  const timeContent = messageParts[2];
+
+  // Format the message based on messageType or customize as needed
+  switch (messageType) {
+    case "-s":
+      return `<div class="message-content  ${isCurrentUser ? 'user-message' : 'other-message'}"><strong>${nameContent} :</strong> <span class="received-message">${messageContent}</span> ${timeContent}</div>`;
+    default:
+      return text;
+  }
 }
