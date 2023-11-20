@@ -105,18 +105,19 @@ socket.on("welcome", async (room, _name) => {
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
-  dataChannels.forEach(function (_myDataChannel){
-    _myDataChannel.addEventListener("message", (event) => {
-      appendMessage(event.data, false);
-      console.log(event.data);
-    });
-  });
-
   dataChannels.push(myDataChannel);
-  // myDataChannel.addEventListener("message", (event) => {
-  //   appendMessage(event.data, false);
-  //   console.log("message");
+
+  // dataChannels.forEach(function (_myDataChannel){
+  //   _myDataChannel.addEventListener("message", (event) => {
+  //     appendMessage(event.data, false);
+  //     console.log(event.data);
+  //   });
   // });
+
+  myDataChannel.addEventListener("message", (event) => {
+    appendMessage(event.data, false);
+    console.log("message");
+  });
   //오퍼 생성자 연결설정 정보 생성
   const offer = await myPeerConnection.createOffer();
   //오퍼 생성자 연결설정 설정
@@ -125,21 +126,21 @@ socket.on("welcome", async (room, _name) => {
 });
 
 socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
-  makeConnection(receiverName);
+  makeConnection(socketId);
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
-    // myDataChannel = event.channel;
-    // myDataChannel.addEventListener("message", (event) =>{
-    //     appendMessage(event.data, false);
-    //     console.log(event.data);
-    // });
-    dataChannels.forEach(function (_myDataChannel) {
-      _myDataChannel.addEventListener("message", (event) => {
+    myDataChannel = event.channel;
+    myDataChannel.addEventListener("message", (event) =>{
         appendMessage(event.data, false);
         console.log(event.data);
-      });
     });
     dataChannels.push(event.channel);
+    // dataChannels.forEach(function (_myDataChannel) {
+    //   _myDataChannel.addEventListener("message", (event) => {
+    //     appendMessage(event.data, false);
+    //     console.log(event.data);
+    //   });
+    // });
   });
   //오퍼생성자의 오퍼 연결 설정을 설정
   myPeerConnection.setRemoteDescription(offer);
