@@ -120,15 +120,18 @@ socket.on("welcome", async (room, _name) => {
 });
 
 socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
+  console.log("offer");
   makeConnection(receiverName);
+
   myPeerConnection.addEventListener("datachannel", (event) => {
     // 데이터 채널 이벤트가 발생하면 데이터 채널을 설정
     myDataChannel = event.channel;
-    myDataChannel.addEventListener("message", (event) =>{
-        appendMessage(event.data, false);
-        console.log(event.data);
-    });
-    dataChannels.push(event.channel);
+    dataChannels.push(myDataChannel);
+
+    myDataChannel.onmessage = function (event) {
+      console.log(event.data);
+      appendMessage(event.data, false);
+    };
   });
   //오퍼생성자의 오퍼 연결 설정을 설정
   myPeerConnection.setRemoteDescription(offer);
@@ -241,7 +244,9 @@ msgForm.addEventListener("submit", function (event) {
   dataChannels.forEach(function (_myDataChannel) {
     console.log(`send ${text}`);
     // const encodedData = stringToByteBuffer(text, 'utf-8');
-    _myDataChannel.send(text);
+    if (_myDataChannel.readyState === 'open') {
+      _myDataChannel.send(text);
+    }
   });
 
   appendMessage(text, true);
@@ -276,18 +281,4 @@ function formatMessage(text, isCurrentUser) {
     default:
       return text;
   }
-}
-
-function stringToByteBuffer(str, charset) {
-  const encoder = new TextEncoder(charset);
-  const encoded = encoder.encode(str);
-  return new Uint8Array(encoded).buffer;
-}
-
-// Function to convert a ByteBuffer-like object to a string
-function byteBufferToString(buffer, charset) {
-  const decoder = new TextDecoder(charset);
-  const dataView = new DataView(buffer);
-  const decoded = decoder.decode(dataView);
-  return decoded;
 }
