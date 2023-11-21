@@ -69,11 +69,21 @@ filterSelect.addEventListener("change", handleFilterSelect);
 
 function handleFilterSelect() {
   myFace.className = filterSelect.value;
-  fragColor = 'gl_FragColor = vec4(color * vec3(0.9, 0.0, 1.0), 1.0);';
+  switch (filterSelect.value){
+    case 'green':
+        fragColor = "gl_FragColor = vec4(color * vec3(0.299, 0.587, 0.114), 1.0);";
+        break;
+    case 'invert':
+      fragColor = "gl_FragColor = vec4(vec3(1.0) - color, 1.0);";
+      break;
+    default:
+      fragColor = "gl_FragColor = vec4(color, 1.0);";
+      break;
+
+  }
+  // fragColor = 'gl_FragColor = vec4(color * vec3(0.9, 0.0, 1.0), 1.0);';
   console.log(fragColor);
   update();
-
-  let newStream = canvas.captureStream();
 
   const videoTrack = newStream.getVideoTracks()[0];
   console.log(videoTrack);
@@ -299,12 +309,14 @@ function formatMessage(text, isCurrentUser) {
 
 const buffer = document.createElement('canvas');
 const canvas = document.getElementById('canvas');
+let newStream = canvas.captureStream();
+
 let glslCanvas;
 
 let fragColor = `gl_FragColor = vec4(color, 1.0);`;
 
 function setup() {
-  canvas.style.display = 'block';
+  canvas.style.display = 'none';
   myFace.srcObject = myStream;
   myFace.play();
 
@@ -329,7 +341,6 @@ function render() {
   glslCanvas.setUniform('u_texture', dataURL);
 
   window.requestAnimationFrame(render);
-
 }
 
 function update() {

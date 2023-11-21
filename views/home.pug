@@ -25,8 +25,8 @@ html(lang="en")
                     button#camera(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 카메라 끄기
                     select.form-select(id="filter" class="gap-2 col-3 mx-auto" aria-label="비디오 필터")
                         option(value="none" selected data-shader="gl_FragColor = vec4(color, 1.0);") 없음
-                        option(value="invert" data-shader="gl_FragColor = vec4(color * vec3(0.9, 0.0, 1.0), 1.0);") 초록
-                        option(value="grayscale" data-shader="gl_FragColor = vec4(color * vec3(1.5, 1.5, 0.0), 1.0);") 회색
+                        option(value="invert") 색상반전
+                        //option(value="green") 초록
                     #message-container
                     form#msgForm
                         input(type="text", placeholder="write a msg", required)
@@ -41,14 +41,9 @@ style
     |     filter: none;
     | }
 
-    | .blur {
+    | .green {
     |     -webkit-filter: blur(3px);
-    |     filter: blur(3px);
-    | }
-
-    | .grayscale {
-    |     -webkit-filter: grayscale(1);
-    |     filter: grayscale(1);
+    |     filter: invert(34%) sepia(88%) saturate(468%) hue-rotate(61deg) brightness(99%) contrast(86%);
     | }
 
     | .invert {
