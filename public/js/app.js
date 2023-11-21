@@ -111,6 +111,8 @@ socket.on("welcome", async (room, _name) => {
     appendMessage(event.data, false);
   };
 
+  appendMessage(`[${name}] 님이 방에 참가했습니다.`, false);
+
   dataChannels.push(myDataChannel);
   //오퍼 생성자 연결설정 정보 생성
   const offer = await myPeerConnection.createOffer();
@@ -157,6 +159,7 @@ socket.on("ice", (ice) => {
 
 socket.on("leave_room", (name, hostName) => {
   console.log(name);
+  appendMessage(`[${name}] 님이 방에서 나갔습니다.`, false);
   removeUserByTag(name);
 });
 
