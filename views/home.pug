@@ -7,6 +7,7 @@ html(lang="en")
         title Meeting
         link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css")
         link(rel="stylesheet", href="/public/css/styles.css")
+        script(src="https://rawgit.com/patriciogonzalezvivo/glslCanvas/master/dist/GlslCanvas.js")
     body(class="container")
         header
             h1 Meeting
@@ -19,12 +20,13 @@ html(lang="en")
             div#call
                 div#myStream(class="row")
                     video#myFace(autoplay, playsinline, width="400", height="400")
+                    canvas#canvas
                     button#mute(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 마이크 끄기
                     button#camera(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 카메라 끄기
                     select.form-select(id="filter" class="gap-2 col-3 mx-auto" aria-label="비디오 필터")
-                        option(value="none" selected) 없음
-                        option(value="invert") 초록
-                        option(value="grayscale") 회색
+                        option(value="none" selected data-shader="gl_FragColor = vec4(color, 1.0);") 없음
+                        option(value="invert" data-shader="gl_FragColor = vec4(color * vec3(0.9, 0.0, 1.0), 1.0);") 초록
+                        option(value="grayscale" data-shader="gl_FragColor = vec4(color * vec3(1.5, 1.5, 0.0), 1.0);") 회색
                     #message-container
                     form#msgForm
                         input(type="text", placeholder="write a msg", required)
@@ -32,25 +34,3 @@ html(lang="en")
                 div#peerFaceContainer
         script(src="/socket.io/socket.io.js")
         script(src="/public/js/app.js")
-
-
-style
-    | .none {
-    |     -webkit-filter: none;
-    |     filter: none;
-    | }
-
-    | .blur {
-    |     -webkit-filter: blur(3px);
-    |     filter: blur(3px);
-    | }
-
-    | .grayscale {
-    |     -webkit-filter: grayscale(1);
-    |     filter: grayscale(1);
-    | }
-
-    | .invert {
-    |     -webkit-filter: invert(1);
-    |     filter: invert(1);
-    | }
