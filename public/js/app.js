@@ -363,4 +363,8 @@ function update() {
   if (glslCanvas) glslCanvas.load(vertexShader);
 }
 
-myFace.addEventListener('canplay', render);
+// myFace.addEventListener('play', function() {
+//   (function loop() {
+//     render();
+//   })();
+// }, 0);
