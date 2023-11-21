@@ -68,9 +68,19 @@ cameraBtn.addEventListener("click", handleCameraClick);
 filterSelect.addEventListener("change", handleFilterSelect);
 
 function handleFilterSelect() {
+  myFace.className = filterSelect.value;
   fragColor = 'gl_FragColor = vec4(color * vec3(0.9, 0.0, 1.0), 1.0);';
   console.log(fragColor);
   update();
+
+  let newStream = canvas.captureStream();
+
+  const videoTrack = newStream.getVideoTracks()[0];
+  console.log(videoTrack);
+  const videoSender = myPeerConnection
+      .getSenders()
+      .find((sender) => sender.track.kind === "video");
+  videoSender.replaceTrack(videoTrack);
 }
 // 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
@@ -319,20 +329,10 @@ function render() {
   glslCanvas.setUniform('u_texture', dataURL);
 
   window.requestAnimationFrame(render);
-  let newStream = canvas.captureStream();
 
-
-  if (myPeerConnection) {
-    const videoTrack = newStream.getVideoTracks()[0];
-    const videoSender = myPeerConnection
-        .getSenders()
-        .find((sender) => sender.track.kind === "video");
-    videoSender.replaceTrack(videoTrack);
-  }
 }
 
 function update() {
-
   const vertexShader = `
     #ifdef GL_ES
     precision mediump float;
