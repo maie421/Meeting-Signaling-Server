@@ -17,6 +17,9 @@ let name;
 let myPeerConnection;
 let myDataChannel;
 let dataChannels = [];
+let mediaStream;
+let videoSender = [];
+const VIDEO = "ARDAMSv0";
 
 // 미디어 스트림을 가져오는 함수
 async function getMedia() {
@@ -87,10 +90,10 @@ function handleFilterSelect() {
 
   const videoTrack = newStream.getVideoTracks()[0];
   console.log(videoTrack);
-  const videoSender = myPeerConnection
-      .getSenders()
-      .find((sender) => sender.track.kind === "video");
-  videoSender.replaceTrack(videoTrack);
+
+  videoSender.forEach(function (_sender) {
+    _sender.replaceTrack(videoTrack);
+  })
 }
 // 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
@@ -174,7 +177,6 @@ socket.on("answer", (answer, sendName) => {
 });
 
 socket.on("ice", (ice) => {
-  console.log("캔디데이트 수신");
   if (ice){
     myPeerConnection.addIceCandidate(ice);
   }
@@ -204,11 +206,22 @@ function makeConnection(_name) {
     ],
   });
 
-  // 나머지 코드는 이전과 동일합니다.
   myPeerConnection.addEventListener("icecandidate", handleIce);
-  myPeerConnection.addEventListener("addstream", (event) => {
+  // myPeerConnection.addEventListener("addstream", (event) => {
+  //
+  // });
+  myPeerConnection.onaddstream = (event) => {
     handleAddStream(event, _name);
-  });
+  };
+  // myPeerConnection.addEventListener("track", (event) => {
+  //   // event.streams is an array of MediaStreams, assuming each stream has one video track
+  //   const streams = event.streams;
+  //   console.log(streams);
+  //
+  //   streams.forEach((stream) => {
+  //     handleAddStream(stream, _name);
+  //   });
+  // });
 
   myStream
       .getTracks()
@@ -221,9 +234,7 @@ function handleIce(data) {
   socket.emit("ice", data.candidate, roomName);
 }
 
-function handleAddStream(data, _name) {
-  console.log("addstream" + data);
-
+function handleAddStream(event, _name) {
   // "peerFace" 요소를 생성합니다.
   const peerFace = document.createElement("video");
   peerFace.autoplay = true;
@@ -232,12 +243,16 @@ function handleAddStream(data, _name) {
   peerFace.height = 400;
 
   // "peerFace" 요소에 스트림을 설정합니다.
-  peerFace.srcObject = data.stream;
+  peerFace.srcObject = event.stream;
   peerFace.dataset.tag = _name;
 
   // "peerFaceContainer" 부모 요소에 "peerFace"를 추가합니다.
   const peerFaceContainer = document.getElementById("peerFaceContainer");
   peerFaceContainer.appendChild(peerFace);
+
+  videoSender.push(myPeerConnection
+      .getSenders()
+      .find((sender) => sender.track.kind === "video"));
 }
 
 window.onbeforeunload = function () {
@@ -326,6 +341,7 @@ function setup() {
   myFace.play();
 
   window.devicePixelRatio = 1;
+
   update();
 }
 
@@ -368,8 +384,28 @@ function update() {
   if (glslCanvas) glslCanvas.load(vertexShader);
 }
 
-// myFace.addEventListener('play', function() {
-//   (function loop() {
-//     render();
-//   })();
-// }, 0);
+myFace.addEventListener('play', function() {
+  (function loop() {
+    render();
+  })();
+}, 0);
+
+
+//화면 공유
+const captureScreenButton = document.getElementById("captureScreen");
+captureScreenButton.addEventListener("click", captureScreen);
+async function captureScreen() {
+  mediaStream = null;
+  try {
+    mediaStream = await navigator.mediaDevices.getDisplayMedia({
+      video: {
+        cursor: "always"
+      },
+      audio: false
+    });
+
+    document.getElementById("local-video").srcObject = mediaStream;
+  } catch (ex) {
+    console.log("Error occurred", ex);
+  }
+}
