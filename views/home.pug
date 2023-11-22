@@ -23,7 +23,7 @@ html(lang="en")
                     canvas#canvas
                     button#mute(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 마이크 끄기
                     button#camera(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 카메라 끄기
-                    select.form-select(id="filter" class="gap-2 col-3 mx-auto" aria-label="비디오 필터")
+                    select.form-select(id="filter" class="gap-2 col-3 mx-auto" aria-label="비디오 필터" style="display:none")
                         option(value="none" selected data-shader="gl_FragColor = vec4(color, 1.0);") 없음
                         option(value="invert") 색상반전
                         //option(value="green") 초록
