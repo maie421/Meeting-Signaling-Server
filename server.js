@@ -85,6 +85,13 @@ wsServer.on("connection", (socket) => {
         console.error(`Error occurred: ${error.message}`);
     });
 
+    socket.on("send_android_message", (roomName, msg) => {
+        socket.to(roomName).emit("send_android_message", msg);
+    });
+
+    socket.on("send_web_message", (roomName, msg) => {
+        socket.to(roomName).emit("send_web_message", msg);
+    });
 });
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 httpServer.listen(3000, handleListen);
@@ -109,3 +116,4 @@ function joinRoom(roomName, name, socket) {
     socket.join(roomName);
     socket.to(roomName).emit("welcome", room, name);
 }
+

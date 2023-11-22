@@ -9,6 +9,7 @@ const video = window.video = document.querySelector('video');
 
 call.hidden = true;
 
+let double;
 let myStream;
 let muted = false;
 let cameraOff = false;
@@ -108,6 +109,7 @@ socket.on("welcome", async (room, _name) => {
 
   myDataChannel.onmessage = function (event) {
     console.log(event.data);
+    double = event.data;
     appendMessage(event.data, false);
   };
 
@@ -132,6 +134,7 @@ socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
 
     myDataChannel.onmessage = function (event) {
       console.log(event.data);
+      double = event.data;
       appendMessage(event.data, false);
     };
   });
@@ -156,7 +159,11 @@ socket.on("ice", (ice) => {
     myPeerConnection.addIceCandidate(ice);
   }
 });
-
+socket.on("send_web_message", (msg) => {
+  if (double !== msg){
+    appendMessage(msg, false);
+  }
+});
 socket.on("leave_room", (name, hostName) => {
   console.log(name);
   appendMessage(`[${name}] 님이 방에서 나갔습니다.`, false);
@@ -251,7 +258,7 @@ msgForm.addEventListener("submit", function (event) {
       _myDataChannel.send(text);
     }
   });
-
+  socket.emit("send_android_message", roomName, text);
   appendMessage(text, true);
 
   // Clear the input field after sending the message
@@ -263,7 +270,7 @@ function appendMessage(text, isCurrentUser) {
   messageElement.classList.add("message");
 
   // Set inner HTML with sender, timestamp, and text
-  messageElement.innerHTML = formatMessage(text,isCurrentUser)
+  messageElement.innerHTML = formatMessage(text, isCurrentUser)
 
   // Append the message to the message container
   messageContainer.appendChild(messageElement);
@@ -277,7 +284,6 @@ function formatMessage(text, isCurrentUser) {
   const nameContent = messageParts[0];
   const timeContent = messageParts[2];
 
-  // Format the message based on messageType or customize as needed
   switch (messageType) {
     case "-s":
       return `<div class="message-content  ${isCurrentUser ? 'user-message' : 'other-message'}"><strong>${nameContent} :</strong> <span class="received-message">${messageContent}</span> ${timeContent}</div>`;
