@@ -169,7 +169,6 @@ socket.on("offer", async (offer, sendName, socketId, receiverName, host) => {
   myPeerConnection.setLocalDescription(answer);
   socket.emit("answer", answer, roomName, sendName, socketId);
 });
-
 socket.on("answer", (answer, sendName) => {
   console.log("answer 수신");
   // 오퍼생성자의 앤서 연결 설정을 설정합니다.

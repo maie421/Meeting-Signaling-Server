@@ -16,8 +16,6 @@ recordButton.addEventListener('click', () => {
     init(constraints);
 });
 downloadButton.addEventListener('click', () => {
-    recordButton.style.display = 'block';
-    downloadButton.style.display = 'none';
     stopRecording();
 });
 
@@ -66,6 +64,9 @@ async function startRecording() {
 
 function stopRecording() {
     mediaRecorder.stop();
+    recordButton.style.display = 'block';
+    downloadButton.style.display = 'none';
+    socket.emit("stop_recorder_room", roomName);
 }
 
 async function init(constraints) {
@@ -75,6 +76,7 @@ async function init(constraints) {
         startRecording();
         recordButton.style.display = 'none';
         downloadButton.style.display = 'block';
+        socket.emit("recorder_room", roomName);
     } catch (e) {
         console.error('navigator.getUserMedia error:', e);
     }
