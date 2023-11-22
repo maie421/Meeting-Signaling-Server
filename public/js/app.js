@@ -5,7 +5,6 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const call = document.getElementById("call");
 const filterSelect = document.getElementById("filter");
-const video = window.video = document.querySelector('video');
 
 call.hidden = true;
 
@@ -28,8 +27,7 @@ async function getMedia() {
 
   try {
     myStream = await navigator.mediaDevices.getUserMedia(constraints);
-    // myStream = await navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
-    myFace.srcObject = myStream;
+    setup();
   } catch (e) {
     console.log(e);
   }
@@ -70,7 +68,29 @@ cameraBtn.addEventListener("click", handleCameraClick);
 filterSelect.addEventListener("change", handleFilterSelect);
 
 function handleFilterSelect() {
-  video.className = filterSelect.value;
+  myFace.className = filterSelect.value;
+  switch (filterSelect.value){
+    case 'green':
+        fragColor = "gl_FragColor = vec4(color * vec3(0.299, 0.587, 0.114), 1.0);";
+        break;
+    case 'invert':
+      fragColor = "gl_FragColor = vec4(vec3(1.0) - color, 1.0);";
+      break;
+    default:
+      fragColor = "gl_FragColor = vec4(color, 1.0);";
+      break;
+
+  }
+  // fragColor = 'gl_FragColor = vec4(color * vec3(0.9, 0.0, 1.0), 1.0);';
+  console.log(fragColor);
+  update();
+
+  const videoTrack = newStream.getVideoTracks()[0];
+  console.log(videoTrack);
+  const videoSender = myPeerConnection
+      .getSenders()
+      .find((sender) => sender.track.kind === "video");
+  videoSender.replaceTrack(videoTrack);
 }
 // 환영 메시지와 방 참가를 처리하는 부분
 const welcome = document.getElementById("welcome");
@@ -291,3 +311,65 @@ function formatMessage(text, isCurrentUser) {
       return text;
   }
 }
+
+const buffer = document.createElement('canvas');
+const canvas = document.getElementById('canvas');
+let newStream = canvas.captureStream();
+
+let glslCanvas;
+
+let fragColor = `gl_FragColor = vec4(color, 1.0);`;
+
+function setup() {
+  canvas.style.display = 'none';
+  myFace.srcObject = myStream;
+  myFace.play();
+
+  window.devicePixelRatio = 1;
+  update();
+}
+
+function render() {
+  buffer.width = myFace.videoWidth;
+  buffer.height = myFace.videoHeight;
+  buffer.getContext('2d').drawImage(myFace, 0, 0);
+
+  canvas.width = myFace.width;
+  canvas.height = myFace.height;
+
+  if (!glslCanvas) {
+    glslCanvas = new GlslCanvas(canvas);
+    update();
+  }
+
+  var dataURL = buffer.toDataURL();
+  glslCanvas.setUniform('u_texture', dataURL);
+
+  window.requestAnimationFrame(render);
+}
+
+function update() {
+  const vertexShader = `
+    #ifdef GL_ES
+    precision mediump float;
+    #endif
+    uniform sampler2D u_texture;
+    uniform vec2 u_resolution;
+    uniform float u_time;
+    void main() {
+      vec2 st = gl_FragCoord.xy / u_resolution.xy;
+      float x = gl_FragCoord.x;
+      float y = gl_FragCoord.y;
+      vec3 color = texture2D(u_texture, st).rgb;
+      ${fragColor}
+    }
+  `;
+
+  if (glslCanvas) glslCanvas.load(vertexShader);
+}
+
+// myFace.addEventListener('play', function() {
+//   (function loop() {
+//     render();
+//   })();
+// }, 0);
