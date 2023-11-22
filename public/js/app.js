@@ -392,20 +392,20 @@ myFace.addEventListener('play', function() {
 
 
 //화면 공유
-const captureScreenButton = document.getElementById("captureScreen");
-captureScreenButton.addEventListener("click", captureScreen);
-async function captureScreen() {
-  mediaStream = null;
-  try {
-    mediaStream = await navigator.mediaDevices.getDisplayMedia({
-      video: {
-        cursor: "always"
-      },
-      audio: false
-    });
-
-    document.getElementById("local-video").srcObject = mediaStream;
-  } catch (ex) {
-    console.log("Error occurred", ex);
-  }
-}
+// const captureScreenButton = document.getElementById("captureScreen");
+// captureScreenButton.addEventListener("click", captureScreen);
+// async function captureScreen() {
+//   mediaStream = null;
+//   try {
+//     mediaStream = await navigator.mediaDevices.getDisplayMedia({
+//       video: {
+//         cursor: "always"
+//       },
+//       audio: false
+//     });
+//
+//     document.getElementById("local-video").srcObject = mediaStream;
+//   } catch (ex) {
+//     console.log("Error occurred", ex);
+//   }
+// }

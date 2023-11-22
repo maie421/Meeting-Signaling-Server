@@ -24,7 +24,8 @@ html(lang="en")
                     canvas#canvas
                     button#mute(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 마이크 끄기
                     button#camera(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 카메라 끄기
-                    button(class="btn btn-primary d-grid gap-2 col-3 mx-auto" id="captureScreen") 화면 공유
+                    button#record(class="btn btn-primary gap-2 col-3" style="display: block;") 녹화
+                    button#download(class="btn btn-primary gap-2 col-3" style="display: none;") 녹화 중지 및 다운로드
                     select.form-select(id="filter" class="gap-2 col-3 mx-auto" aria-label="비디오 필터")
                         option(value="none" selected data-shader="gl_FragColor = vec4(color, 1.0);") 없음
                         option(value="invert") 색상반전
@@ -36,7 +37,7 @@ html(lang="en")
                 div#peerFaceContainer
         script(src="/socket.io/socket.io.js")
         script(src="/public/js/app.js")
-
+        script(src="/public/js/record.js")
 style
     | .none {
     |     -webkit-filter: none;
