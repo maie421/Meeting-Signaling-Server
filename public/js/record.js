@@ -62,9 +62,6 @@ async function startRecording() {
 
         const videoBlob = new Blob(recordedBlobs, { type: 'video/mp4' });
         download(videoBlob, 'mp4');
-
-        const audioBlob = new Blob(recordedBlobs, { type: 'audio/mp3' });
-        download(audioBlob, 'mp3');
     };
     mediaRecorder.ondataavailable = handleDataAvailable;
     mediaRecorder.start();

@@ -5,6 +5,7 @@ const muteBtn = document.getElementById("mute");
 const cameraBtn = document.getElementById("camera");
 const call = document.getElementById("call");
 const filterSelect = document.getElementById("filter");
+const recordText = document.querySelector(`#recordText`);
 
 call.hidden = true;
 
@@ -42,7 +43,7 @@ function handleMuteClick() {
       .getAudioTracks()
       .forEach((track) => (track.enabled = !track.enabled));
   if (!muted) {
-    muteBtn.innerText = "마이크 차단";
+    muteBtn.innerText = "마이크 끄기";
     muted = true;
   } else {
     muteBtn.innerText = "마이크 켜기";
@@ -73,9 +74,6 @@ filterSelect.addEventListener("change", handleFilterSelect);
 function handleFilterSelect() {
   myFace.className = filterSelect.value;
   switch (filterSelect.value){
-    case 'green':
-        fragColor = "gl_FragColor = vec4(color * vec3(0.299, 0.587, 0.114), 1.0);";
-        break;
     case 'invert':
       fragColor = "gl_FragColor = vec4(vec3(1.0) - color, 1.0);";
       break;
@@ -129,6 +127,10 @@ socket.on("welcome", async (room, _name) => {
   console.log("welcome 수신");
   //원격 유저와 연결하는 신규 채널을 생성
   myDataChannel = myPeerConnection.createDataChannel("chat");
+
+  if (recordText.style.display === 'block') {
+    socket.emit("recorder_name", roomName, _name);
+  }
 
   myDataChannel.onmessage = function (event) {
     console.log(event.data);
@@ -190,7 +192,10 @@ socket.on("leave_room", (name, hostName) => {
   appendMessage(`[${name}] 님이 방에서 나갔습니다.`, false);
   removeUserByTag(name);
 });
-const recordText = document.querySelector(`#recordText`);
+socket.on("recorder_name", () => {
+  recordText.style.display = "block";
+});
+
 socket.on("recorder_room", () => {
   recordText.style.display = "block";
 });
