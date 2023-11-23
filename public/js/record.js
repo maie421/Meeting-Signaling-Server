@@ -11,7 +11,8 @@ recordButton.addEventListener('click', () => {
     const constraints = {
         video: {
             width: 1280, height: 720
-        }
+        },
+        audio: true
     };
     if (window.confirm("모든 참여자의 동의 없이 회의를 녹화하는 것은 불법이며 법적 조치가 적용될수 있습니다. 회의 녹화에 대한 외부 참석자 및 회의에 늦게 참여하는 참석자 등 모든 참여자의 동의를 구해야 합니다.")){
         init(constraints);
@@ -55,9 +56,15 @@ async function startRecording() {
     console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
 
     mediaRecorder.onstop = (event) => {
+        stopScreenSharing();
         console.log('Recorder stopped: ', event);
         console.log('Recorded Blobs: ', recordedBlobs);
-        download()
+
+        const videoBlob = new Blob(recordedBlobs, { type: 'video/mp4' });
+        download(videoBlob, 'mp4');
+
+        const audioBlob = new Blob(recordedBlobs, { type: 'audio/mp3' });
+        download(audioBlob, 'mp3');
     };
     mediaRecorder.ondataavailable = handleDataAvailable;
     mediaRecorder.start();
@@ -85,14 +92,13 @@ async function init(constraints) {
         console.error('navigator.getUserMedia error:', e);
     }
 }
-function download(){
+function download(blob, fileType) {
     const time = Date.now();
-    const blob = new Blob(recordedBlobs, {type: 'video/mp4'});
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.style.display = 'none';
     a.href = url;
-    a.download = time;
+    a.download = time + '.' + fileType;
     document.body.appendChild(a);
     a.click();
 
@@ -100,5 +106,12 @@ function download(){
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
     }, 100);
+}
 
+function stopScreenSharing() {
+    if (window.stream) {
+        const tracks = window.stream.getTracks();
+        tracks.forEach(track => track.stop());
+        window.stream = null;
+    }
 }

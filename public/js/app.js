@@ -261,6 +261,9 @@ function handleAddStream(event, _name) {
 }
 
 window.onbeforeunload = function () {
+  if (recordText.style.display === 'block'){
+    socket.emit("stop_recorder_room", roomName);
+  }
   socket.emit("leave_room", roomName, name);
 }
 
