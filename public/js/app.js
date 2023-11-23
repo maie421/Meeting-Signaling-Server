@@ -329,7 +329,7 @@ function formatMessage(text, isCurrentUser) {
 
   switch (messageType) {
     case "-s":
-      return `<div class="message-content  ${isCurrentUser ? 'user-message' : 'other-message'}"><strong>${nameContent} :</strong> <span class="received-message">${messageContent}</span> ${timeContent}</div>`;
+      return `<div class="message-content  ${isCurrentUser ? 'user-message' : 'other-message'}"><strong>${nameContent} :</strong> <span class="received-message">${messageContent}</span> ( ${timeContent} )</div>`;
     default:
       return text;
   }
