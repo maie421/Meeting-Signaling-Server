@@ -19,6 +19,7 @@ html(lang="en")
                     button(class="btn btn-primary d-grid gap-2 col-3 mx-auto") 회의 참가
             div#call
                 div#myStream(class="row")
+                    h1#recordText(style="color: red; display: none;") 녹화중...
                     video#myFace(autoplay, playsinline, width="400", height="400")
                     //video#local-video(muted, autoplay)
                     canvas#canvas

@@ -13,7 +13,9 @@ recordButton.addEventListener('click', () => {
             width: 1280, height: 720
         }
     };
-    init(constraints);
+    if (window.confirm("모든 참여자의 동의 없이 회의를 녹화하는 것은 불법이며 법적 조치가 적용될수 있습니다. 회의 녹화에 대한 외부 참석자 및 회의에 늦게 참여하는 참석자 등 모든 참여자의 동의를 구해야 합니다.")){
+        init(constraints);
+    }
 });
 downloadButton.addEventListener('click', () => {
     stopRecording();
@@ -66,6 +68,7 @@ function stopRecording() {
     mediaRecorder.stop();
     recordButton.style.display = 'block';
     downloadButton.style.display = 'none';
+    recordText.style.display = "none";
     socket.emit("stop_recorder_room", roomName);
 }
 
@@ -76,6 +79,7 @@ async function init(constraints) {
         startRecording();
         recordButton.style.display = 'none';
         downloadButton.style.display = 'block';
+        recordText.style.display = "block";
         socket.emit("recorder_room", roomName);
     } catch (e) {
         console.error('navigator.getUserMedia error:', e);

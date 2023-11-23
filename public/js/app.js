@@ -190,7 +190,13 @@ socket.on("leave_room", (name, hostName) => {
   appendMessage(`[${name}] 님이 방에서 나갔습니다.`, false);
   removeUserByTag(name);
 });
-
+const recordText = document.querySelector(`#recordText`);
+socket.on("recorder_room", () => {
+  recordText.style.display = "block";
+});
+socket.on("stop_recorder_room", () => {
+  recordText.style.display = "none";
+});
 function makeConnection(_name) {
   myPeerConnection = new RTCPeerConnection({
     iceServers: [
