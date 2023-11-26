@@ -6,6 +6,9 @@ const cameraBtn = document.getElementById("camera");
 const call = document.getElementById("call");
 const filterSelect = document.getElementById("filter");
 const recordText = document.querySelector(`#recordText`);
+const captureScreenButton = document.getElementById("captureScreen");
+const stopCaptureScreenButton = document.getElementById("stopCaptureScreen");
+const localVideo = document.getElementById("local-video");
 
 call.hidden = true;
 
@@ -18,9 +21,10 @@ let name;
 let myPeerConnection;
 let myDataChannel;
 let dataChannels = [];
-let mediaStream;
 let videoSender = [];
+let peerConnections= [];
 const VIDEO = "ARDAMSv0";
+let mediaStream = null;
 
 // 미디어 스트림을 가져오는 함수
 async function getMedia() {
@@ -120,7 +124,20 @@ async function handleWelcomeSubmit(event) {
 
 // 환영 메시지 폼 제출 이벤트 리스너 등록
 welcomeForm.addEventListener("submit", handleWelcomeSubmit);
+socket.on("stop_screen_room", (roomName, name) => {
+  const peerFaceContainer = document.getElementById("peerFaceContainer");
+  const peerFaces = peerFaceContainer.querySelectorAll("video");
 
+  console.log("stop_screen_room" + name);
+
+  removeUserByTag(name);
+
+  peerFaces.forEach((peerFace) => {
+    if (peerFace.dataset.tag === name+"_화면공유") {
+      peerFace.dataset.tag = name;
+    }
+  });
+});
 // 웹 소켓 이벤트 처리 부분
 socket.on("welcome", async (room, _name) => {
   makeConnection(_name);
@@ -138,7 +155,9 @@ socket.on("welcome", async (room, _name) => {
     appendMessage(event.data, false);
   };
 
-  appendMessage(`[${name}] 님이 방에 참가했습니다.`, false);
+  if (name.includes('화면공유')){
+    appendMessage(`[${name}] 님이 방에 참가했습니다.`, false);
+  }
 
   dataChannels.push(myDataChannel);
   //오퍼 생성자 연결설정 정보 생성
@@ -217,26 +236,16 @@ function makeConnection(_name) {
   });
 
   myPeerConnection.addEventListener("icecandidate", handleIce);
-  // myPeerConnection.addEventListener("addstream", (event) => {
-  //
-  // });
+
   myPeerConnection.onaddstream = (event) => {
     handleAddStream(event, _name);
   };
-  // myPeerConnection.addEventListener("track", (event) => {
-  //   // event.streams is an array of MediaStreams, assuming each stream has one video track
-  //   const streams = event.streams;
-  //   console.log(streams);
-  //
-  //   streams.forEach((stream) => {
-  //     handleAddStream(stream, _name);
-  //   });
-  // });
+
+  peerConnections.push(myPeerConnection);
 
   myStream
       .getTracks()
       .forEach((track) => myPeerConnection.addTrack(track, myStream));
-
 }
 
 function handleIce(data) {
@@ -244,9 +253,10 @@ function handleIce(data) {
   socket.emit("ice", data.candidate, roomName);
 }
 
-function handleAddStream(event, _name) {
+function handleAddStream(stream, _name) {
   // "peerFace" 요소를 생성합니다.
   const peerFace = document.createElement("video");
+  let isPeerFace = false;
   peerFace.autoplay = true;
   peerFace.playsinline = true;
   peerFace.width = 400;
@@ -256,13 +266,21 @@ function handleAddStream(event, _name) {
   peerFace.srcObject = event.stream;
   peerFace.dataset.tag = _name;
 
-  // "peerFaceContainer" 부모 요소에 "peerFace"를 추가합니다.
   const peerFaceContainer = document.getElementById("peerFaceContainer");
-  peerFaceContainer.appendChild(peerFace);
+  const peerFaces = peerFaceContainer.querySelectorAll("video");
+  peerFaces.forEach((peerFace) => {
+    if (peerFace.dataset.tag === _name) {
+      isPeerFace = true;
+    }
+  });
+  console.log("isPeerFace:" + isPeerFace);
+  if (!isPeerFace){
+    peerFaceContainer.appendChild(peerFace);
 
-  videoSender.push(myPeerConnection
-      .getSenders()
-      .find((sender) => sender.track.kind === "video"));
+    videoSender.push(myPeerConnection
+        .getSenders()
+        .find((sender) => sender.track.kind === "video"));
+  }
 }
 
 window.onbeforeunload = function () {
@@ -275,6 +293,7 @@ window.onbeforeunload = function () {
 function removeUserByTag(tag) {
   const peerFaceContainer = document.getElementById("peerFaceContainer");
   const peerFaces = peerFaceContainer.querySelectorAll("video");
+
   peerFaces.forEach((peerFace) => {
     if (peerFace.dataset.tag === tag) {
       peerFaceContainer.removeChild(peerFace);
@@ -288,7 +307,6 @@ const messageContainer = document.getElementById("message-container");
 msgForm.addEventListener("submit", function (event) {
   event.preventDefault();
 
-  // Get the user's message from the input field
   const userMessageInput = msgForm.querySelector("input[type='text']");
   const userMessage = userMessageInput.value;
 
@@ -306,10 +324,10 @@ msgForm.addEventListener("submit", function (event) {
       _myDataChannel.send(text);
     }
   });
+
   socket.emit("send_android_message", roomName, text);
   appendMessage(text, true);
 
-  // Clear the input field after sending the message
   userMessageInput.value = "";
 });
 
@@ -397,28 +415,53 @@ function update() {
   if (glslCanvas) glslCanvas.load(vertexShader);
 }
 
-myFace.addEventListener('play', function() {
-  (function loop() {
-    render();
-  })();
-}, 0);
+// myFace.addEventListener('play', function() {
+//   (function loop() {
+//     render();
+//   })();
+// }, 0);
 
 
-//화면 공유
-// const captureScreenButton = document.getElementById("captureScreen");
-// captureScreenButton.addEventListener("click", captureScreen);
-// async function captureScreen() {
-//   mediaStream = null;
-//   try {
-//     mediaStream = await navigator.mediaDevices.getDisplayMedia({
-//       video: {
-//         cursor: "always"
-//       },
-//       audio: false
-//     });
-//
-//     document.getElementById("local-video").srcObject = mediaStream;
-//   } catch (ex) {
-//     console.log("Error occurred", ex);
-//   }
-// }
+// 화면 공유
+captureScreenButton.addEventListener("click", captureScreen);
+stopCaptureScreenButton.addEventListener("click", stopCaptureScreen)
+async function captureScreen() {
+  try {
+    mediaStream = await navigator.mediaDevices.getDisplayMedia({
+      video: {
+        cursor: "always"
+      },
+      audio: false
+    });
+
+    mediaStream.onstop = (event) => {
+      console.log("스크린샷 종료")
+      stopCaptureScreen();
+    };
+
+    localVideo.srcObject = mediaStream;
+    socket.emit("join_room", roomName, name+"_화면공유");
+
+    const videoTrack = mediaStream.getVideoTracks()[0];
+    //
+    videoSender.forEach(function (_sender) {
+      _sender.replaceTrack(videoTrack);
+    });
+
+    localVideo.style.display= "block";
+    captureScreenButton.style.display = "none";
+    stopCaptureScreenButton.style.display = "block";
+
+  } catch (ex) {
+    console.log("Error occurred", ex);
+  }
+}
+function stopCaptureScreen(){
+  const tracks = mediaStream.getTracks();
+  tracks.forEach(track => track.stop());
+  mediaStream = null;
+  captureScreenButton.style.display = "block";
+  stopCaptureScreenButton.style.display = "none";
+  localVideo.style.display= "none";
+  socket.emit("stop_screen_room", roomName, name);
+}
