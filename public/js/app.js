@@ -25,7 +25,7 @@ let videoSender = [];
 let peerConnections= [];
 const VIDEO = "ARDAMSv0";
 let mediaStream = null;
-
+let isCaptrueScreen = false;
 // 미디어 스트림을 가져오는 함수
 async function getMedia() {
   const constraints = {
@@ -287,6 +287,10 @@ window.onbeforeunload = function () {
   if (recordText.style.display === 'block'){
     socket.emit("stop_recorder_room", roomName);
   }
+  if (stopCaptureScreenButton.style.display === 'block') {
+    stopCaptureScreen();
+    socket.emit("stop_screen_room", roomName, name);
+  }
   socket.emit("leave_room", roomName, name);
 }
 
@@ -295,7 +299,7 @@ function removeUserByTag(tag) {
   const peerFaces = peerFaceContainer.querySelectorAll("video");
 
   peerFaces.forEach((peerFace) => {
-    if (peerFace.dataset.tag === tag) {
+    if (peerFace.dataset.tag === tag || peerFace.dataset.tag === tag+"_화면공유") {
       peerFaceContainer.removeChild(peerFace);
     }
   });
@@ -443,7 +447,7 @@ async function captureScreen() {
     socket.emit("join_room", roomName, name+"_화면공유");
 
     const videoTrack = mediaStream.getVideoTracks()[0];
-    //
+
     videoSender.forEach(function (_sender) {
       _sender.replaceTrack(videoTrack);
     });
