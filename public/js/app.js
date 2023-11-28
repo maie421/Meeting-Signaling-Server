@@ -25,7 +25,6 @@ let videoSender = [];
 let peerConnections= [];
 const VIDEO = "ARDAMSv0";
 let mediaStream = null;
-let isCaptrueScreen = false;
 // 미디어 스트림을 가져오는 함수
 async function getMedia() {
   const constraints = {
@@ -243,9 +242,16 @@ function makeConnection(_name) {
 
   peerConnections.push(myPeerConnection);
 
-  myStream
-      .getTracks()
-      .forEach((track) => myPeerConnection.addTrack(track, myStream));
+  if (stopCaptureScreenButton.style.display === 'block') {
+    mediaStream.getTracks()
+        .forEach((track) => {
+          myPeerConnection.addTrack(track, mediaStream);
+        });
+  }else{
+    myStream
+        .getTracks()
+        .forEach((track) => myPeerConnection.addTrack(track, myStream));
+  }
 }
 
 function handleIce(data) {
@@ -339,10 +345,7 @@ function appendMessage(text, isCurrentUser) {
   const messageElement = document.createElement("div");
   messageElement.classList.add("message");
 
-  // Set inner HTML with sender, timestamp, and text
   messageElement.innerHTML = formatMessage(text, isCurrentUser)
-
-  // Append the message to the message container
   messageContainer.appendChild(messageElement);
 }
 
@@ -444,7 +447,6 @@ async function captureScreen() {
     };
 
     localVideo.srcObject = mediaStream;
-    socket.emit("join_room", roomName, name+"_화면공유");
 
     const videoTrack = mediaStream.getVideoTracks()[0];
 
@@ -452,7 +454,8 @@ async function captureScreen() {
       _sender.replaceTrack(videoTrack);
     });
 
-    localVideo.style.display= "block";
+    localVideo.style.display = "block";
+    myFace.style.display = "none"
     captureScreenButton.style.display = "none";
     stopCaptureScreenButton.style.display = "block";
 
@@ -465,7 +468,12 @@ function stopCaptureScreen(){
   tracks.forEach(track => track.stop());
   mediaStream = null;
   captureScreenButton.style.display = "block";
+  myFace.style.display = "block"
   stopCaptureScreenButton.style.display = "none";
   localVideo.style.display= "none";
-  socket.emit("stop_screen_room", roomName, name);
+
+  const videoTrack = myStream.getVideoTracks()[0];
+  videoSender.forEach(function (_sender) {
+    _sender.replaceTrack(videoTrack);
+  });
 }

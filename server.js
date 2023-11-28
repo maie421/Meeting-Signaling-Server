@@ -69,11 +69,7 @@ wsServer.on("connection", (socket) => {
 
     socket.on("stop_screen_room", (roomName, name) => {
         console.info("stop_screen_room : 들어옴");
-        if(name) {
-            socket.to(roomName).emit("stop_screen_room", roomName, name);
-        }else{
-            socket.to(roomName).emit("stop_screen_room", roomName);
-        }
+        socket.to(roomName).emit("stop_screen_room", roomName);
     });
 
     socket.on("recorder_name", (roomName, from) => {
