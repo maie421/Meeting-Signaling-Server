@@ -6,8 +6,8 @@ https://github.com/maie421/Meeting-Android
 https://github.com/maie421/Meeting-API
 
 ## skill
-Node.js 20 <br>
-pug
+- Node.js 20
+- pug
 
 ## Installation
 
