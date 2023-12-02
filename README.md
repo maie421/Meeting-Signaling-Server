@@ -35,7 +35,7 @@ $ npm run start:dev
 - 채팅
   - datachannel
  
-https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/6748df7a-0336-4e23-97dc-b3c1b0f8b0d7
+https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/7c62b526-ed09-4453-a53c-9dd8224e4f05
 
 - 녹화
 
