@@ -5,6 +5,9 @@ https://github.com/maie421/Meeting-Android
 ### api server 
 https://github.com/maie421/Meeting-API
 
+## 프로젝트 기간
+2023.09.25 ~ 2023.11.26
+
 ## skill
 - Node.js 20
 - pug
