@@ -38,8 +38,8 @@ $ npm run start:dev
 https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/7c62b526-ed09-4453-a53c-9dd8224e4f05
 
 - 녹화
-
-https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/a5b5dab4-4770-48f5-a6ce-ddc42abeae3f
+  
+https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/649ad248-f504-41aa-ba0f-36aecc2312d0
 
 - 화면 공유
 
