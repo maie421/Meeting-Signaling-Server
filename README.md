@@ -40,4 +40,8 @@ https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/a5b5dab4-477
 
 - 화면 공유
 
+https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/55623d53-515c-4367-a572-8457b6eb0a8a
+
+
+
 
