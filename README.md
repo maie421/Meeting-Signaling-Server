@@ -30,6 +30,11 @@ $ npm run start:dev
 - 카메라
 - 채팅
   - datachannel
+ 
+https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/6748df7a-0336-4e23-97dc-b3c1b0f8b0d7
+
 - 녹화
 - 화면 공유
 - 필터
+
+
