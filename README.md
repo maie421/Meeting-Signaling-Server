@@ -28,13 +28,16 @@ $ npm run start:dev
 ## 기능
 - 마이크
 - 카메라
+- 필터
 - 채팅
   - datachannel
  
 https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/6748df7a-0336-4e23-97dc-b3c1b0f8b0d7
 
 - 녹화
+
+https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/a5b5dab4-4770-48f5-a6ce-ddc42abeae3f
+
 - 화면 공유
-- 필터
 
 
