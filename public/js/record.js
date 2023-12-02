@@ -53,8 +53,6 @@ async function startRecording() {
         return;
     }
 
-    console.log('Created MediaRecorder', mediaRecorder, 'with options', options);
-
     mediaRecorder.onstop = (event) => {
         stopScreenSharing();
         console.log('Recorder stopped: ', event);

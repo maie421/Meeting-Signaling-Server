@@ -1,3 +1,4 @@
+/*채팅*/
 .message {
     margin-bottom: 10px;
 }
@@ -13,6 +14,7 @@
     background-color: #f1f1f1; /* Light gray background color for other person's messages */
 }
 
+/*필터*/
 canvas {
     height: auto;
     max-width: 400px;

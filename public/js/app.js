@@ -311,6 +311,7 @@ function removeUserByTag(tag) {
   });
 }
 
+//메세지 전송
 const msgForm = document.querySelector("form#msgForm");
 const messageContainer = document.getElementById("message-container");
 
@@ -422,6 +423,7 @@ function update() {
   if (glslCanvas) glslCanvas.load(vertexShader);
 }
 
+//필터
 // myFace.addEventListener('play', function() {
 //   (function loop() {
 //     render();
@@ -432,6 +434,9 @@ function update() {
 // 화면 공유
 captureScreenButton.addEventListener("click", captureScreen);
 stopCaptureScreenButton.addEventListener("click", stopCaptureScreen)
+/**
+ * 화면 공유
+ */
 async function captureScreen() {
   try {
     mediaStream = await navigator.mediaDevices.getDisplayMedia({
@@ -463,6 +468,10 @@ async function captureScreen() {
     console.log("Error occurred", ex);
   }
 }
+
+/**
+ * 화면 공유 멈츰
+ */
 function stopCaptureScreen(){
   const tracks = mediaStream.getTracks();
   tracks.forEach(track => track.stop());
