@@ -12,22 +12,6 @@ https://github.com/maie421/Meeting-API
 - Node.js 20
 - pug
 
-## Installation
-
-```bash
-$ npm install
-```
-
-## Running the app
-
-```bash
-# start
-$ node server.js
-
-# development
-$ npm run start:dev
-```
-
 ## 기능
 - 마이크
 - 카메라
