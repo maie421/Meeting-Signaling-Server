@@ -43,4 +43,4 @@ $ npm run start:dev
 
 - 화면 공유
 
-https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/55623d53-515c-4367-a572-8457b6eb0a8a
+![287441451-55623d53-515c-4367-a572-8457b6eb0a8a-ezgif com-video-to-gif-converter](https://github.com/maie421/Meeting-Android/assets/35258834/9fa86e56-4b66-466d-bda0-7f0db22c39e4)
