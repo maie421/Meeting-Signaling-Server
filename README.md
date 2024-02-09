@@ -39,7 +39,7 @@ $ npm run start:dev
 
 - 녹화
   
-https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/649ad248-f504-41aa-ba0f-36aecc2312d0
+![287443339-649ad248-f504-41aa-ba0f-36aecc2312d0-ezgif com-video-to-gif-converter](https://github.com/maie421/Meeting-Android/assets/35258834/17cac569-2b50-4ec6-8ac3-507d3afd0db3)
 
 - 화면 공유
 
