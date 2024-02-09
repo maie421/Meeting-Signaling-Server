@@ -35,7 +35,7 @@ $ npm run start:dev
 - 채팅
   - datachannel
  
-https://github.com/maie421/Meeting-Signaling-Server/assets/35258834/7c62b526-ed09-4453-a53c-9dd8224e4f05
+![287443156-7c62b526-ed09-4453-a53c-9dd8224e4f05-ezgif com-video-to-gif-converter](https://github.com/maie421/Meeting-Android/assets/35258834/58487ce2-5b5a-44a0-aa1d-6caf43adf511)
 
 - 녹화
   
