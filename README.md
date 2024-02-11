@@ -2,8 +2,6 @@
 화상 채팅을 할수 있는 프로그램 입니다
 ### android 
 https://github.com/maie421/Meeting-Android
-### api server 
-https://github.com/maie421/Meeting-API
 
 ## 프로젝트 기간
 2023.09.25 ~ 2023.11.26
