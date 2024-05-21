@@ -10,6 +10,9 @@ https://github.com/maie421/Meeting-Android
 - Node.js 20
 - pug
 
+### 배포 구조
+<img width="698" alt="image" src="https://github.com/maie421/track-price-changes/assets/35258834/4f3cf9b2-db79-41aa-8445-1a37e647c4d1">
+
 ## 기능
 - 마이크
 - 카메라
