@@ -1,5 +1,5 @@
 # Meeting-Signaling-Server and web
-화상 채팅을 할수 있는 프로그램 입니다
+영상통화
 ### android 
 https://github.com/maie421/Meeting-Android
 
